@@ -1,11 +1,16 @@
 'use client';
 
 import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
 
-export function GoalHeader() {
-  const [isClicked, setIsClicked] = useState(false);
+type GoalHeaderProps = {
+  isDeleteMode: boolean;
+  onToggleDeleteMode: () => void;
+};
 
+export function GoalHeader({
+  isDeleteMode,
+  onToggleDeleteMode,
+}: GoalHeaderProps) {
   return (
     <div className="flex w-full items-center justify-between px-4 py-4">
       <div className="flex flex-col">
@@ -14,16 +19,14 @@ export function GoalHeader() {
       </div>
 
       <button
-        onClick={() => setIsClicked((prev) => !prev)}
+        onClick={onToggleDeleteMode}
         className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
-          isClicked ? 'bg-red-500' : 'bg-gray-100'
+          isDeleteMode ? 'bg-red-500' : 'bg-gray-100'
         }`}
       >
-        {isClicked ? (
-          <Trash2 className="h-4 w-4 text-white" />
-        ) : (
-          <Trash2 className="h-4 w-4 text-gray-600" />
-        )}
+        <Trash2
+          className={`h-4 w-4 ${isDeleteMode ? 'text-white' : 'text-gray-600'}`}
+        />
       </button>
     </div>
   );
