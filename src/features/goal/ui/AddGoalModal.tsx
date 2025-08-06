@@ -38,7 +38,7 @@ export function AddGoalModal({ onClose, onAdd }: Props) {
   if (!isMounted) return null;
 
   return (
-    <div className="pb-14s fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 pb-14 backdrop-blur-sm">
       <div className="absolute inset-0" onClick={handleClose} />
 
       <div
