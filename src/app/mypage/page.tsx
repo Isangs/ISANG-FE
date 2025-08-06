@@ -7,23 +7,26 @@ import BadgeGallery from '@/widgets/BadgeGallery/BadgeGallery';
 import ActivityFeed from '@/widgets/ActivityFeed/ActivityFeed';
 import RecordList from '@/widgets/RecordList/ RecordList';
 import { Settings } from 'lucide-react';
-
 export default function MyPage() {
   return (
     <MainLayout>
-      <div className="flex items-center justify-between bg-white px-6 py-6">
+      {/* 상단 고정 영역 */}
+      <div className="sticky top-0 z-10 flex items-center justify-between bg-white px-6 py-6">
         <h2 className="text-xl font-semibold text-gray-900">내 정보</h2>
         <Settings className="h-5 w-5 text-gray-500" />
       </div>
 
-      <div className="to-[#E0E7FF]mx-auto flex flex-col gap-6 bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] px-4 py-6">
-        <ProfileCard />
-        <GoalScoreList />
-        <WeeklyChart />
-        <CompletionCircleList />
-        <BadgeGallery />
-        <RecordList />
-        <ActivityFeed />
+      {/* 스크롤 가능 영역 */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto flex flex-col gap-6 bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF] px-4 py-6">
+          <ProfileCard />
+          <GoalScoreList />
+          <WeeklyChart />
+          <CompletionCircleList />
+          <BadgeGallery />
+          <RecordList />
+          <ActivityFeed />
+        </div>
       </div>
     </MainLayout>
   );
