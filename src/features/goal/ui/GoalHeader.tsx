@@ -12,7 +12,7 @@ export function GoalHeader({
   onToggleDeleteMode,
 }: GoalHeaderProps) {
   return (
-    <div className="flex w-full items-center justify-between px-4 py-4">
+    <div className="flex w-full items-center justify-between px-4 py-6">
       <div className="flex flex-col">
         <h2 className="text-xl font-bold text-gray-900">오늘의 목표</h2>
         <p className="text-sm text-gray-600">힘내서 완료해보세요! 💪</p>
