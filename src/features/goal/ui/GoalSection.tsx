@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { GoalCard } from './GoalCard';
 import { GoalCategoryTabs } from './GoalCategoryTabs';
 import { GoalHeader } from './GoalHeader';
-import { AddGoalModal } from './AddGoalModal';
+import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
 
 const initialGoals = [
