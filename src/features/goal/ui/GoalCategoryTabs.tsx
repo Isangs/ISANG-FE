@@ -18,7 +18,7 @@ export function GoalCategoryTabs({
   categories = [],
 }: GoalCategoryTabsProps) {
   return (
-    <div className="relative flex w-full gap-2 overflow-x-auto px-4 py-2">
+    <div className="relative flex w-full gap-2 overflow-x-auto px-4 pt-2 pb-5">
       {categories.map((category) => (
         <div key={category} className="relative">
           {isDeleteMode && (
