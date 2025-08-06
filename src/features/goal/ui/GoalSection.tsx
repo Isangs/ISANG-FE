@@ -19,14 +19,15 @@ export function GoalSection() {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [categories, setCategories] = useState([
-    '전체',
-    '운동',
-    '학습',
-    '업무',
-    '건강',
-    '개인성장',
+    { name: '전체', color: 'gray' },
+    { name: '운동', color: 'gray' },
+    { name: '학습', color: 'gray' },
+    { name: '업무', color: 'gray' },
+    { name: '건강', color: 'gray' },
+    { name: '개인성장', color: 'gray' },
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
     const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
     const newGoalItem = {
@@ -37,13 +38,12 @@ export function GoalSection() {
     setGoals((prev) => [...prev, newGoalItem]);
   };
 
-  const handleDeleteCategory = (category: string) => {
-    if (category === '전체') return; // "전체"는 삭제 금지
+  const handleDeleteCategory = (categoryName: string) => {
+    if (categoryName === '전체') return;
 
-    setCategories((prev) => prev.filter((c) => c !== category));
+    setCategories((prev) => prev.filter((c) => c.name !== categoryName));
 
-    // 선택된 카테고리를 삭제하면 "전체"로 이동
-    if (selectedCategory === category) {
+    if (selectedCategory === categoryName) {
       setSelectedCategory('전체');
     }
   };
@@ -95,6 +95,13 @@ export function GoalSection() {
           onAdd={(goal) => {
             handleAddGoal(goal);
             setIsModalOpen(false);
+          }}
+          onAddCategory={(category: { name: string; color: string }) => {
+            setCategories((prev) => {
+              if (prev.some((c) => c.name === category.name)) return prev;
+              return [...prev, category];
+            });
+            setSelectedCategory(category.name);
           }}
         />
       )}

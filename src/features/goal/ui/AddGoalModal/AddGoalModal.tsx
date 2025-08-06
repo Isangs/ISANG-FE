@@ -12,9 +12,11 @@ type Category = {
 export function AddGoalModal({
   onClose,
   onAdd,
+  onAddCategory,
 }: {
   onClose: () => void;
   onAdd: (goal: { title: string; category: string }) => void;
+  onAddCategory: (category: { name: string; color: string }) => void;
 }) {
   const [title, setTitle] = useState('');
   const [categories, setCategories] = useState<Category[]>([
@@ -41,6 +43,7 @@ export function AddGoalModal({
     setSelectedGoal(newCategory.name);
     setCategoryInput('');
     setIsAddingCategory(false);
+    onAddCategory?.(newCategory);
   };
 
   const handleClose = () => {
