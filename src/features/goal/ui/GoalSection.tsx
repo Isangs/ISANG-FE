@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { GoalCard } from './GoalCard';
 import { GoalCategoryTabs } from './GoalCategoryTabs';
 import { GoalHeader } from './GoalHeader';
+import { AddGoalModal } from './AddGoalModal';
+import { AddGoalButton } from './AddGoalButton';
 
 const initialGoals = [
   { id: 1, category: '운동', title: '30분 걷기', score: 70 },
@@ -16,7 +18,6 @@ export function GoalSection() {
   const [goals, setGoals] = useState(initialGoals);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
-
   const [categories, setCategories] = useState([
     '전체',
     '운동',
@@ -25,6 +26,16 @@ export function GoalSection() {
     '건강',
     '개인성장',
   ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleAddGoal = (newGoal: { title: string; category: string }) => {
+    const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
+    const newGoalItem = {
+      id: newId,
+      score: 0,
+      ...newGoal,
+    };
+    setGoals((prev) => [...prev, newGoalItem]);
+  };
 
   const handleDeleteCategory = (category: string) => {
     if (category === '전체') return; // "전체"는 삭제 금지
@@ -41,7 +52,6 @@ export function GoalSection() {
     setGoals((prev) => prev.filter((goal) => goal.id !== id));
   };
 
-  // 필터링
   const filteredGoals =
     selectedCategory === '전체'
       ? goals
@@ -76,6 +86,18 @@ export function GoalSection() {
           ))}
         </div>
       </div>
+
+      <AddGoalButton onClick={() => setIsModalOpen(true)} />
+
+      {isModalOpen && (
+        <AddGoalModal
+          onClose={() => setIsModalOpen(false)}
+          onAdd={(goal) => {
+            handleAddGoal(goal);
+            setIsModalOpen(false);
+          }}
+        />
+      )}
     </section>
   );
 }
