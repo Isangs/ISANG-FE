@@ -7,9 +7,27 @@ type Goal = {
   score: number;
 };
 
-export function GoalCard({ goal }: { goal: Goal }) {
+type GoalCardProps = {
+  goal: Goal;
+  isDeleteMode?: boolean;
+  onDelete?: (id: number) => void;
+};
+
+export function GoalCard({
+  goal,
+  isDeleteMode = false,
+  onDelete,
+}: GoalCardProps) {
   return (
-    <div className="relative flex h-[156px] w-[94%] flex-col items-start overflow-hidden rounded-2xl bg-white/70 px-4 py-4">
+    <div className="relative flex h-[156px] w-[94%] flex-col items-start rounded-2xl bg-white/70 px-4 py-4">
+      {isDeleteMode && (
+        <button
+          className="text-ls absolute -top-2 -right-2 z-10 h-8 w-8 rounded-full bg-red-500 font-bold text-white shadow-md"
+          onClick={() => onDelete?.(goal.id)}
+        >
+          ×
+        </button>
+      )}
       {/* 배경 그라데이션 */}
       <div className="absolute inset-0 -z-10 h-full w-full rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 opacity-10" />
 
