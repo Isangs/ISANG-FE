@@ -1,14 +1,14 @@
 'use client';
 import { cn } from '@/lib/utils';
 
+const categories = ['전체', '운동', '학습', '업무', '건강', '개인성장'];
+
 type Props = {
   selected: string;
   onSelect: (category: string) => void;
 };
 
 export function GoalCategoryTabs({ selected, onSelect }: Props) {
-  const categories = ['전체', '운동', '학습', '업무', '건강', '개인성장'];
-
   return (
     <div className="flex w-full gap-2 overflow-x-auto px-4 py-5">
       {categories.map((category) => (
