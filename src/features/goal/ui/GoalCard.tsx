@@ -1,4 +1,4 @@
-// features/goal/ui/GoalCard.tsx
+import { Check, MapPin } from 'lucide-react';
 
 type Goal = {
   id: number;
@@ -9,7 +9,7 @@ type Goal = {
 
 export function GoalCard({ goal }: { goal: Goal }) {
   return (
-    <div className="relative flex h-[156px] w-[343px] flex-col items-start overflow-hidden rounded-2xl bg-white/70 px-4 py-4">
+    <div className="relative flex h-[156px] w-[94%] flex-col items-start overflow-hidden rounded-2xl bg-white/70 px-4 py-4">
       {/* 배경 그라데이션 */}
       <div className="absolute inset-0 -z-10 h-full w-full rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 opacity-10" />
 
@@ -17,7 +17,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
       <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-300" />
 
       <div className="flex w-full flex-col gap-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between p-1">
           <div className="flex items-center gap-2 text-sm">
             <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-600">
               {goal.category}
@@ -27,8 +27,8 @@ export function GoalCard({ goal }: { goal: Goal }) {
           </div>
 
           {/* 아이콘 자리 */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-white">
-            📈
+          <div className="text-gray-60 flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60">
+            <Check className="h-4 w-4" />
           </div>
         </div>
 
@@ -36,7 +36,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
 
         {/* 장소 */}
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span>📍</span>
+          <MapPin className="h-4 w-4" />
           <span>한강공원</span>
         </div>
 
