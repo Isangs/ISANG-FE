@@ -6,6 +6,7 @@ import { GoalCategoryTabs } from './GoalCategoryTabs';
 import { GoalHeader } from './GoalHeader';
 import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
+import CompletionModal from '@/features/goal-complete/ui/CompletionModal/CompletionModal';
 
 const initialGoals = [
   { id: 1, category: '운동', title: '30분 걷기', score: 70 },
@@ -27,6 +28,7 @@ export function GoalSection() {
     { name: '개인성장', color: 'gray' },
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
 
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
     const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
@@ -82,13 +84,23 @@ export function GoalSection() {
               goal={goal}
               isDeleteMode={isDeleteMode}
               onDelete={handleDeleteGoal}
+              onOpenModal={() => setIsCompletionOpen(true)} // 이건 GoalSection에서 선언한 상태 핸들러
             />
           ))}
         </div>
       </div>
 
-      <AddGoalButton onClick={() => setIsModalOpen(true)} />
+      <CompletionModal
+        isOpen={isCompletionOpen}
+        onClose={() => setIsCompletionOpen(false)}
+      />
 
+      {/* AddGoalButton은 CompletionModal이 열려있을 때 숨김 */}
+      {!isCompletionOpen && (
+        <AddGoalButton onClick={() => setIsModalOpen(true)} />
+      )}
+
+      {/* AddGoalModal */}
       {isModalOpen && (
         <AddGoalModal
           onClose={() => setIsModalOpen(false)}

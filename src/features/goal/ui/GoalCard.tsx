@@ -1,5 +1,4 @@
-import { Check, MapPin } from 'lucide-react';
-
+import { MapPin } from 'lucide-react';
 type Goal = {
   id: number;
   category: string;
@@ -11,12 +10,14 @@ type GoalCardProps = {
   goal: Goal;
   isDeleteMode?: boolean;
   onDelete?: (id: number) => void;
+  onOpenModal?: () => void; // optional로 바꿔도 되고 필수로 해도 됨
 };
 
 export function GoalCard({
   goal,
   isDeleteMode = false,
   onDelete,
+  onOpenModal,
 }: GoalCardProps) {
   return (
     <div className="relative flex h-[156px] w-[94%] flex-col items-start rounded-2xl bg-white/70 px-4 py-4">
@@ -28,6 +29,7 @@ export function GoalCard({
           ×
         </button>
       )}
+
       {/* 배경 그라데이션 */}
       <div className="absolute inset-0 -z-10 h-full w-full rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 opacity-10" />
 
@@ -44,10 +46,12 @@ export function GoalCard({
             <span className="text-xs text-gray-500">높음</span>
           </div>
 
-          {/* 아이콘 자리 */}
-          <div className="text-gray-60 flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60">
-            <Check className="h-4 w-4" />
-          </div>
+          {/* 모달 열기 버튼 */}
+          <button
+            type="button"
+            className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60 text-gray-600"
+            onClick={onOpenModal} // 부모에서 넘긴 함수 실행
+          />
         </div>
 
         <h3 className="text-base font-semibold text-gray-900">{goal.title}</h3>
