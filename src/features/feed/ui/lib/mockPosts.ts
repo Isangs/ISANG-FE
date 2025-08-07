@@ -8,7 +8,7 @@ export const mockPosts: Post[] = [
     timeAgo: '2시간 전',
     badge: '30분 조깅 완료',
     content: '한강에서 30분 조깅 완료! 오늘도 목표 달성 💪',
-    imageUrl: '/jogging.jpg',
+    imageUrl: undefined,
     likeCount: 12,
     commentCount: 8,
   },

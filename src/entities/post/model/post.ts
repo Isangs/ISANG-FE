@@ -5,7 +5,7 @@ export type Post = {
   timeAgo: string;
   badge: string;
   content: string;
-  imageUrl: string;
+  imageUrl?: string;
   likeCount: number;
   commentCount: number;
 };

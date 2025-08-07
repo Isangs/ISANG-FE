@@ -1,17 +1,11 @@
 'use client';
 
-import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
+import { Post } from '@/entities/post/model/post';
+import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface PostCardProps {
-  post: {
-    author: string;
-    timeAgo: string;
-    badge: string;
-    imageUrl: string;
-    likeCount: number;
-    commentCount: number;
-  };
+  post: Post;
 }
 
 export default function PostCard({ post }: PostCardProps) {
@@ -45,16 +39,24 @@ export default function PostCard({ post }: PostCardProps) {
         {badge}
       </div>
 
+      {/* 본문 내용 추가 */}
+      {post.content && (
+        <p className="text-sm whitespace-pre-wrap text-gray-700">
+          {post.content}
+        </p>
+      )}
       {/* 이미지 */}
-      <div className="h-[192px] w-full overflow-hidden rounded-2xl">
-        <Image
-          src={imageUrl}
-          alt="post"
-          width={311}
-          height={192}
-          className="h-full w-full object-cover"
-        />
-      </div>
+      {imageUrl && (
+        <div className="h-[192px] w-full overflow-hidden rounded-2xl">
+          <Image
+            src={imageUrl}
+            alt="post"
+            width={311}
+            height={192}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
 
       {/* 버튼 */}
       <div className="flex items-center justify-between border-t border-gray-200 pt-3">
