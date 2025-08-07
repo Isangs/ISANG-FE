@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { GoalDetailCard } from './GoalDetailCard';
 
@@ -68,15 +69,39 @@ export default function GoalDetailModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  if (!isOpen) return null;
+  const [visible, setVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      setIsMounted(true);
+      const timer = setTimeout(() => setVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => {
+        setIsMounted(false);
+      }, 300); // 애니메이션 시간과 동일
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  if (!isMounted) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pt-10 backdrop-blur-sm">
-      <div className="max-h-[650px] w-full max-w-sm overflow-y-auto rounded-3xl bg-white/90 p-6 shadow-lg">
+      <div
+        className={`max-h-[650px] w-full max-w-sm overflow-y-auto rounded-3xl bg-white/90 p-6 shadow-lg transition-all duration-300 ease-out ${
+          visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+        }`}
+      >
         {/* 상단 */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">상세 그래프</h2>
-          <button onClick={onClose}>
+          <button onClick={handleClose}>
             <X className="h-5 w-5 text-gray-500 hover:text-gray-700" />
           </button>
         </div>

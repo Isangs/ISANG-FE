@@ -84,9 +84,10 @@ export default function BadgeGallery() {
         </div>
       </section>
 
-      {isModalOpen && (
-        <BadgeDetailModal onClose={() => setIsModalOpen(false)} />
-      )}
+      <BadgeDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </>
   );
 }

@@ -1,25 +1,35 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { X, Flame, Trophy, Star, Rocket, Crown, MapPin } from 'lucide-react';
 import { BadgeCard } from './BadgeCard';
 import { BadgeProgressCard } from './BadgeProgressCard';
 import { cn } from '@/lib/utils';
-export function BadgeDetailModal({ onClose }: { onClose: () => void }) {
+
+type BadgeDetailModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+export function BadgeDetailModal({ isOpen, onClose }: BadgeDetailModalProps) {
   const [visible, setVisible] = useState(false);
-  const [isMounted, setIsMounted] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // open/close 상태 감지해서 mount/visible 처리
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 10);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isOpen) {
+      setIsMounted(true);
+      const timer = setTimeout(() => setVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => {
+        setIsMounted(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
-  const handleClose = () => {
-    setVisible(false);
-    setTimeout(() => {
-      setIsMounted(false);
-      onClose();
-    }, 300);
-  };
   if (!isMounted) return null;
 
   return (
@@ -32,7 +42,7 @@ export function BadgeDetailModal({ onClose }: { onClose: () => void }) {
       >
         {/* 닫기 버튼 */}
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute top-7 right-6 text-gray-400 hover:text-gray-600"
         >
           <X size={24} />
