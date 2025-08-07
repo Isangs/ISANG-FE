@@ -8,19 +8,16 @@ import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
 import CompletionModal from '@/features/goal-complete/ui/CompletionModal/CompletionModal';
 import { RecordSettingsModal } from './RecordSettingsModal';
-const initialGoals = [
-  { id: 1, category: '운동', title: '30분 걷기', score: 70 },
-  { id: 2, category: '학습', title: '리액트 복습', score: 85 },
-  { id: 3, category: '학습', title: '리액트 복습', score: 85 },
-  { id: 4, category: '업무', title: '업무 정리', score: 90 },
-];
-
+import { usePostStore } from '@/shared/store/post'; // ✅ Zustand store import
+import { Post } from '@/entities/post/model/post';
 export function GoalSection() {
-  const [goals, setGoals] = useState(initialGoals);
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [completedGoalIds, setCompletedGoalIds] = useState<number[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null); // 목표 선택
+  const [goals, setGoals] = useState([
+    { id: 1, category: '운동', title: '30분 걷기', score: 70 },
+    { id: 2, category: '학습', title: '리액트 복습', score: 85 },
+    { id: 3, category: '학습', title: '리액트 복습', score: 85 },
+    { id: 4, category: '업무', title: '업무 정리', score: 90 },
+  ]);
+
   const [categories, setCategories] = useState([
     { name: '전체', color: 'gray' },
     { name: '운동', color: 'gray' },
@@ -29,13 +26,15 @@ export function GoalSection() {
     { name: '건강', color: 'gray' },
     { name: '개인성장', color: 'gray' },
   ]);
+
+  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
-  const [isRecordSettingsOpen, setIsRecordSettingsOpen] = useState(false); // 추가
-  const [savedRecordSettings, setSavedRecordSettings] = useState<{
-    recordEnabled: boolean;
-    isPrivate: boolean;
-  } | null>(null);
+  const [isRecordSettingsOpen, setIsRecordSettingsOpen] = useState(false);
+  const [completedGoalIds, setCompletedGoalIds] = useState<number[]>([]);
+  const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null);
+  const addPost = usePostStore((state) => state.addPost);
 
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
     const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
@@ -74,12 +73,32 @@ export function GoalSection() {
       setIsRecordSettingsOpen(true);
     }, 300);
   };
+
   const handleRecordSettingsConfirm = (settings: {
     recordEnabled: boolean;
     isPrivate: boolean;
   }) => {
-    console.log('사용자 설정:', settings);
-    setSavedRecordSettings(settings);
+    const goal = goals.find((g) => g.id === selectedGoalId);
+    if (!goal) return;
+
+    if (settings.recordEnabled && !settings.isPrivate) {
+      const newPost: Post = {
+        id: crypto.randomUUID(),
+        author: '김민수', // TODO: 로그인 유저 정보로 교체
+        profileUrl: '/profile-kim.png',
+        timeAgo: '방금 전',
+        badge: goal.title,
+        content: `🎯 ${goal.title} 목표를 완료했어요!`,
+        imageUrl: undefined,
+        likeCount: 0,
+        commentCount: 0,
+      };
+      console.log('🔥 newPost 생성됨', newPost);
+      addPost(newPost);
+    }
+
+    setIsRecordSettingsOpen(false);
+    setSelectedGoalId(null);
   };
 
   const filteredGoals =
@@ -103,6 +122,7 @@ export function GoalSection() {
         />
       </div>
 
+      {/* 목표 리스트 */}
       <div className="w-full flex-1 overflow-y-auto bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF]">
         <div className="flex flex-col items-center gap-4 pt-4 pb-32">
           {filteredGoals.map((goal) => (
@@ -121,7 +141,7 @@ export function GoalSection() {
       <CompletionModal
         isOpen={isCompletionOpen}
         onClose={() => setIsCompletionOpen(false)}
-        onSubmit={handleSubmitCompletion} // 완료하기
+        onSubmit={handleSubmitCompletion}
       />
 
       {!isCompletionOpen && (
