@@ -1,7 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+} from 'recharts';
 
 const exerciseData = [
   { value: 50 },
@@ -24,16 +31,32 @@ const studyData = [
 ];
 
 export function WeeklyChart() {
+  const [chartType, setChartType] = useState<'line' | 'area'>('line');
+
   return (
     <div className="w-full max-w-xl rounded-3xl bg-white/80 p-6 shadow-md">
       {/* 제목 & 버튼 */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">주간 성과 차트</h2>
         <div className="flex gap-2">
-          <Button className="h-6 rounded-full bg-purple-500 px-3 py-1 text-xs text-white hover:bg-purple-600">
+          <Button
+            className={`h-6 rounded-full px-3 py-1 text-xs ${
+              chartType === 'line'
+                ? 'bg-purple-500 text-white hover:bg-purple-600'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            onClick={() => setChartType('line')}
+          >
             선형
           </Button>
-          <Button className="h-6 rounded-full bg-gray-200 px-3 py-1 text-xs text-gray-700 hover:bg-gray-300">
+          <Button
+            className={`h-6 rounded-full px-3 py-1 text-xs ${
+              chartType === 'area'
+                ? 'bg-purple-500 text-white hover:bg-purple-600'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            onClick={() => setChartType('area')}
+          >
             영역
           </Button>
         </div>
@@ -47,16 +70,28 @@ export function WeeklyChart() {
         </div>
         <div className="h-32 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={exerciseData}>
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#a855f7"
-                strokeWidth={3}
-                dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
-                activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
-              />
-            </LineChart>
+            {chartType === 'line' ? (
+              <LineChart data={exerciseData}>
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#a855f7"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
+                  activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
+                />
+              </LineChart>
+            ) : (
+              <AreaChart data={exerciseData}>
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#a855f7"
+                  fill="#a855f7"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
@@ -69,16 +104,28 @@ export function WeeklyChart() {
         </div>
         <div className="h-32 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={studyData}>
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#a855f7"
-                strokeWidth={3}
-                dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
-                activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
-              />
-            </LineChart>
+            {chartType === 'line' ? (
+              <LineChart data={studyData}>
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#a855f7"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
+                  activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
+                />
+              </LineChart>
+            ) : (
+              <AreaChart data={studyData}>
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#a855f7"
+                  fill="#a855f7"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
