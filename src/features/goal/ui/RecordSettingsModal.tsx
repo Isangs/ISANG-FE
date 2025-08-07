@@ -5,29 +5,40 @@ import { Switch } from '@/components/ui/switch';
 
 interface RecordSettingsModalProps {
   onClose: () => void;
+  onConfirm: (settings: { recordEnabled: boolean; isPrivate: boolean }) => void;
 }
 
-export function RecordSettingsModal({ onClose }: RecordSettingsModalProps) {
+export function RecordSettingsModal({
+  onClose,
+  onConfirm,
+}: RecordSettingsModalProps) {
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [isPrivate, setIsPrivate] = useState(true);
 
   const [visible, setVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  // mount & transition 처리
   useEffect(() => {
     setIsMounted(true);
     const timer = setTimeout(() => setVisible(true), 10);
     return () => clearTimeout(timer);
   }, []);
 
-  // unmount 전에 애니메이션 실행
   const handleClose = () => {
     setVisible(false);
     setTimeout(() => {
       setIsMounted(false);
       onClose();
-    }, 300); // 애니메이션 시간과 일치
+    }, 300);
+  };
+
+  const handleConfirm = () => {
+    setVisible(false);
+    setTimeout(() => {
+      onConfirm({ recordEnabled, isPrivate }); // 설정 값 부모에게 전달
+      setIsMounted(false);
+      onClose(); // 기존 닫기
+    }, 300);
   };
 
   if (!isMounted) return null;
@@ -81,7 +92,7 @@ export function RecordSettingsModal({ onClose }: RecordSettingsModalProps) {
             취소
           </button>
           <button
-            onClick={handleClose}
+            onClick={handleConfirm}
             className="w-1/2 rounded-[16px] bg-gradient-to-r from-purple-500 to-pink-500 py-3 text-sm font-medium text-white"
           >
             확인

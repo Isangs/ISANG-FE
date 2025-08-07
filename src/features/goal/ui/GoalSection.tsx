@@ -32,6 +32,10 @@ export function GoalSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [isRecordSettingsOpen, setIsRecordSettingsOpen] = useState(false); // 추가
+  const [savedRecordSettings, setSavedRecordSettings] = useState<{
+    recordEnabled: boolean;
+    isPrivate: boolean;
+  } | null>(null);
 
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
     const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
@@ -69,6 +73,13 @@ export function GoalSection() {
     setTimeout(() => {
       setIsRecordSettingsOpen(true);
     }, 300);
+  };
+  const handleRecordSettingsConfirm = (settings: {
+    recordEnabled: boolean;
+    isPrivate: boolean;
+  }) => {
+    console.log('사용자 설정:', settings);
+    setSavedRecordSettings(settings);
   };
 
   const filteredGoals =
@@ -135,7 +146,10 @@ export function GoalSection() {
       )}
 
       {isRecordSettingsOpen && (
-        <RecordSettingsModal onClose={() => setIsRecordSettingsOpen(false)} />
+        <RecordSettingsModal
+          onClose={() => setIsRecordSettingsOpen(false)}
+          onConfirm={handleRecordSettingsConfirm}
+        />
       )}
     </section>
   );
