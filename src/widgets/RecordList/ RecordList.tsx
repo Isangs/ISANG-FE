@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Eye, EyeOff, MoreHorizontal } from 'lucide-react';
 
 type RecordItem = {
@@ -19,22 +20,41 @@ const records: RecordItem[] = [
     content: '운동 30분 완료. 체력이 조금씩 늘고 있는 것 같다.',
     isPublic: false,
   },
+  {
+    date: '2024-01-13',
+    content: '조금은 느슨해졌지만 다시 집중해야겠다.',
+    isPublic: true,
+  },
+  {
+    date: '2024-01-12',
+    content: '작심삼일을 깨자. 오늘도 파이팅.',
+    isPublic: false,
+  },
 ];
 
 export default function RecordList() {
+  const [expanded, setExpanded] = useState(false);
+
+  const displayedRecords = expanded ? records : records.slice(0, 2);
+
   return (
     <div className="w-full max-w-xl rounded-3xl bg-white/80 p-6 shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">내 기록</h2>
-        <button className="text-sm font-medium text-purple-600">
-          전체 보기
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-sm font-medium text-purple-600"
+        >
+          {expanded ? '닫기' : '전체 보기'}
         </button>
       </div>
 
       {/* List */}
-      <div className="flex flex-col gap-3 overflow-y-auto">
-        {records.map((record, idx) => (
+      <div
+        className={`mt-3 flex flex-col gap-3 transition-all duration-300 ease-in-out`}
+      >
+        {displayedRecords.map((record, idx) => (
           <div
             key={idx}
             className="flex justify-between rounded-2xl bg-white/50 p-4"

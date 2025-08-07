@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 
 const activities = [
@@ -21,20 +22,32 @@ const activities = [
     time: '어제',
     description: '팀 회의에서 새로운 아이디어 제안',
   },
+  {
+    icon: <Check size={16} className="text-white" />,
+    title: '책 30쪽 읽기',
+    time: '2일 전',
+    description: '자기개발서를 집중해서 읽었어요.',
+  },
 ];
 
 export default function ActivityFeed() {
+  const [expanded, setExpanded] = useState(false);
+  const displayedActivities = expanded ? activities : activities.slice(0, 2);
+
   return (
     <div className="w-full max-w-xl rounded-3xl bg-white/80 p-6 shadow-md">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">최근 활동</h2>
-        <button className="text-sm font-medium text-purple-600">
-          전체 보기
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-sm font-medium text-purple-600"
+        >
+          {expanded ? '닫기' : '전체 보기'}
         </button>
       </div>
 
-      <div className="space-y-3 overflow-y-auto pr-1">
-        {activities.map((activity, idx) => (
+      <div className="space-y-3 pb-16 transition-all duration-300 ease-in-out">
+        {displayedActivities.map((activity, idx) => (
           <div
             key={idx}
             className="flex w-full items-start justify-between rounded-2xl bg-white/50 p-3 shadow-sm"
