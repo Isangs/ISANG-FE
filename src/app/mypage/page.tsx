@@ -3,7 +3,7 @@ import { ProfileCard } from '@/entities/user/ui/ProfileCard';
 import GoalScoreList from '@/features/goal/ui/GoalScoreList';
 import { WeeklyChart } from '@/widgets/WeeklyChart/WeeklyChart';
 import CompletionCircleList from '@/widgets/CompletionCircleList/CompletionCircleList';
-import BadgeGallery from '@/widgets/BadgeGallery/BadgeGallery';
+import BadgeGallery from '@/features/badge/ui/BadgeGallery';
 import ActivityFeed from '@/widgets/ActivityFeed/ActivityFeed';
 import RecordList from '@/widgets/RecordList/ RecordList';
 import { Settings } from 'lucide-react';
