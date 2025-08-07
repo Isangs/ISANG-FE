@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 
-const activities = [
+const initialActivities = [
   {
     icon: <Check size={16} className="text-white" />,
     title: '30분 조깅 완료',
@@ -32,7 +32,17 @@ const activities = [
 
 export default function ActivityFeed() {
   const [expanded, setExpanded] = useState(false);
-  const displayedActivities = expanded ? activities : activities.slice(0, 2);
+  const [activityList, setActivityList] = useState(initialActivities);
+
+  const displayedActivities = expanded
+    ? activityList
+    : activityList.slice(0, 2);
+
+  const handleDelete = (index: number) => {
+    const updated = [...activityList];
+    updated.splice(index, 1);
+    setActivityList(updated);
+  };
 
   return (
     <div className="w-full max-w-xl rounded-3xl bg-white/80 p-6 shadow-md">
@@ -65,7 +75,10 @@ export default function ActivityFeed() {
               </div>
             </div>
 
-            <button className="mt-1 ml-2 h-5 w-5 text-gray-400 hover:text-gray-700">
+            <button
+              onClick={() => handleDelete(activityList.indexOf(activity))}
+              className="mt-1 ml-2 h-5 w-5 text-gray-400 hover:text-gray-700"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
