@@ -1,38 +1,65 @@
 'use client';
 
-import { Pencil, Camera, Mic } from 'lucide-react';
+import { useState } from 'react';
+import CompletionProofSelector from './CompletionProofSelector';
+import Image from 'next/image';
 
 export default function CompletionProofForm() {
+  const [selectedType, setSelectedType] = useState<'text' | 'photo'>('text');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
+    }
+  }
+
   return (
     <div className="flex w-full flex-col items-center justify-center">
       <div className="w-full max-w-[345px] rounded-2xl bg-white/10 p-7 py-8 backdrop-blur">
-        {/* 섹션 타이틀 */}
         <h3 className="mb-4 text-center text-sm font-semibold text-white">
           완료 증명 제출
         </h3>
 
-        {/* 버튼 3개 */}
-        <div className="mb-4 flex justify-between gap-2">
-          <button className="flex h-[77px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-white text-purple-600 shadow">
-            <Pencil className="h-5 w-5" />
-            <span className="text-xs font-semibold">텍스트</span>
-          </button>
-          <button className="flex h-[77px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-white/20 text-white">
-            <Camera className="h-5 w-5" />
-            <span className="text-xs font-medium">사진</span>
-          </button>
-          <button className="flex h-[77px] w-full flex-col items-center justify-center gap-1 rounded-xl bg-white/20 text-white">
-            <Mic className="h-5 w-5" />
-            <span className="text-xs font-medium">음성</span>
-          </button>
-        </div>
+        <CompletionProofSelector
+          selectedType={selectedType}
+          onSelect={setSelectedType}
+        />
 
-        {/* 텍스트 입력창 */}
-        <div className="h-[116px] w-full rounded-2xl bg-white/20 p-4 backdrop-blur-sm">
-          <textarea
-            className="h-full w-full resize-none bg-transparent text-sm text-white placeholder-white/60 outline-none"
-            placeholder="완료 내용을 입력하세요..."
-          />
+        <div className="h-[116px] w-full rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+          {selectedType === 'text' && (
+            <textarea
+              className="h-full w-full resize-none bg-transparent text-sm text-white placeholder-white/60 outline-none"
+              placeholder="완료 내용을 입력하세요..."
+            />
+          )}
+
+          {selectedType === 'photo' && (
+            <label htmlFor="photo-upload">
+              {photoPreview ? (
+                <Image
+                  src={photoPreview}
+                  alt="preview"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full text-sm text-white/60">
+                  사진을 선택하세요...
+                </div>
+              )}
+
+              <input
+                id="photo-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          )}
         </div>
       </div>
     </div>
