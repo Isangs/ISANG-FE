@@ -2,11 +2,17 @@
 
 import { useState } from 'react';
 import CompletionProofSelector from './CompletionProofSelector';
+import CompletionFooter from './CompletionFooter';
 import Image from 'next/image';
 
 export default function CompletionProofForm() {
   const [selectedType, setSelectedType] = useState<'text' | 'photo'>('text');
+  const [textValue, setTextValue] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  const isValid =
+    (selectedType === 'text' && textValue.trim() !== '') ||
+    (selectedType === 'photo' && photoPreview !== null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -33,20 +39,25 @@ export default function CompletionProofForm() {
             <textarea
               className="h-full w-full resize-none bg-transparent text-sm text-white placeholder-white/60 outline-none"
               placeholder="완료 내용을 입력하세요..."
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
             />
           )}
 
           {selectedType === 'photo' && (
-            <label htmlFor="photo-upload">
+            <label
+              htmlFor="photo-upload"
+              className="flex h-full w-full cursor-pointer rounded-2xl"
+            >
               {photoPreview ? (
                 <Image
                   src={photoPreview}
                   alt="preview"
                   fill
-                  className="object-cover"
+                  className="rounded-2xl object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full text-sm text-white/60">
+                <div className="text-sm text-white/60">
                   사진을 선택하세요...
                 </div>
               )}
@@ -61,6 +72,9 @@ export default function CompletionProofForm() {
             </label>
           )}
         </div>
+      </div>
+      <div className="mt-6">
+        <CompletionFooter isActive={isValid} />
       </div>
     </div>
   );

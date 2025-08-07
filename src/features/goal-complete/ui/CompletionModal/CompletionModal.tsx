@@ -1,6 +1,5 @@
 import { X } from 'lucide-react';
 import { CompletionHeader } from './CompletionHeader';
-import CompletionFooter from './CompletionFooter';
 import CompletionProofForm from './CompletionProofForm';
 
 type CompletionModalProps = {
@@ -27,7 +26,6 @@ export default function CompletionModal({
         <div className="flex flex-col items-center gap-6 rounded-3xl p-4">
           <CompletionHeader />
           <CompletionProofForm />
-          <CompletionFooter />
         </div>
       </div>
     </div>
