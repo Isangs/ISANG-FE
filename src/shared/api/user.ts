@@ -1,12 +1,19 @@
 import { User } from '@/shared/types/user';
 
-export async function updateUser(data: User) {
-  const res = await fetch('/api/user/update', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+export async function updateUser(
+  form: User,
+  accessToken?: string,
+  profileImageUrl?: string,
+) {
+  console.log('⚠️ [임시 요청]', {
+    name: form.name,
+    nick_name: form.nickname,
+    introduce: form.bio,
+    profile_url: profileImageUrl ?? '/img/kakao.png',
+    email: form.email,
+    token: accessToken,
   });
 
-  if (!res.ok) throw new Error('업데이트 실패');
-  return res.json();
+  // TODO: 나중에 PATCH 요청 연결할 것
+  return { success: true };
 }
