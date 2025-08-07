@@ -1,4 +1,5 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, Check } from 'lucide-react';
+
 type Goal = {
   id: number;
   category: string;
@@ -10,7 +11,8 @@ type GoalCardProps = {
   goal: Goal;
   isDeleteMode?: boolean;
   onDelete?: (id: number) => void;
-  onOpenModal?: () => void; // optional로 바꿔도 되고 필수로 해도 됨
+  onOpenModal?: (id: number) => void;
+  isCompleted?: boolean;
 };
 
 export function GoalCard({
@@ -18,6 +20,7 @@ export function GoalCard({
   isDeleteMode = false,
   onDelete,
   onOpenModal,
+  isCompleted = false,
 }: GoalCardProps) {
   return (
     <div className="relative flex h-[156px] w-[94%] flex-col items-start rounded-2xl bg-white/70 px-4 py-4">
@@ -46,23 +49,23 @@ export function GoalCard({
             <span className="text-xs text-gray-500">높음</span>
           </div>
 
-          {/* 모달 열기 버튼 */}
+          {/* 완료 여부에 따라 체크 아이콘 표시 */}
           <button
             type="button"
             className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60 text-gray-600"
-            onClick={onOpenModal} // 부모에서 넘긴 함수 실행
-          />
+            onClick={() => onOpenModal?.(goal.id)}
+          >
+            {isCompleted && <Check className="h-3 w-3" />}{' '}
+          </button>
         </div>
 
         <h3 className="text-base font-semibold text-gray-900">{goal.title}</h3>
 
-        {/* 장소 */}
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4" />
           <span>한강공원</span>
         </div>
 
-        {/* 진행도 바 */}
         <div className="mt-2 flex items-center gap-3">
           <div className="h-2 w-full rounded-full bg-gray-200">
             <div

@@ -1,15 +1,16 @@
 import { X } from 'lucide-react';
 import { CompletionHeader } from './CompletionHeader';
 import CompletionProofForm from './CompletionProofForm';
-
 type CompletionModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 };
 
 export default function CompletionModal({
   isOpen,
   onClose,
+  onSubmit,
 }: CompletionModalProps) {
   if (!isOpen) return null;
 
@@ -25,7 +26,7 @@ export default function CompletionModal({
 
         <div className="flex flex-col items-center gap-6 rounded-3xl p-4">
           <CompletionHeader />
-          <CompletionProofForm />
+          <CompletionProofForm onSubmit={onSubmit} />
         </div>
       </div>
     </div>

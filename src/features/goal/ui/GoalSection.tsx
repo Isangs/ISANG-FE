@@ -19,6 +19,8 @@ export function GoalSection() {
   const [goals, setGoals] = useState(initialGoals);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [completedGoalIds, setCompletedGoalIds] = useState<number[]>([]);
+  const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null); // ✅ 목표 선택
   const [categories, setCategories] = useState([
     { name: '전체', color: 'gray' },
     { name: '운동', color: 'gray' },
@@ -42,16 +44,27 @@ export function GoalSection() {
 
   const handleDeleteCategory = (categoryName: string) => {
     if (categoryName === '전체') return;
-
     setCategories((prev) => prev.filter((c) => c.name !== categoryName));
-
-    if (selectedCategory === categoryName) {
-      setSelectedCategory('전체');
-    }
+    if (selectedCategory === categoryName) setSelectedCategory('전체');
   };
 
   const handleDeleteGoal = (id: number) => {
     setGoals((prev) => prev.filter((goal) => goal.id !== id));
+  };
+
+  const handleCompleteGoal = (goalId: number) => {
+    setSelectedGoalId(goalId);
+    setIsCompletionOpen(true);
+  };
+
+  const handleSubmitCompletion = () => {
+    if (selectedGoalId !== null) {
+      setCompletedGoalIds((prev) =>
+        prev.includes(selectedGoalId) ? prev : [...prev, selectedGoalId],
+      );
+    }
+    setIsCompletionOpen(false);
+    setSelectedGoalId(null);
   };
 
   const filteredGoals =
@@ -66,7 +79,6 @@ export function GoalSection() {
           isDeleteMode={isDeleteMode}
           onToggleDeleteMode={() => setIsDeleteMode((prev) => !prev)}
         />
-
         <GoalCategoryTabs
           categories={categories}
           isDeleteMode={isDeleteMode}
@@ -84,7 +96,8 @@ export function GoalSection() {
               goal={goal}
               isDeleteMode={isDeleteMode}
               onDelete={handleDeleteGoal}
-              onOpenModal={() => setIsCompletionOpen(true)} // 이건 GoalSection에서 선언한 상태 핸들러
+              onOpenModal={() => handleCompleteGoal(goal.id)}
+              isCompleted={completedGoalIds.includes(goal.id)}
             />
           ))}
         </div>
@@ -93,14 +106,13 @@ export function GoalSection() {
       <CompletionModal
         isOpen={isCompletionOpen}
         onClose={() => setIsCompletionOpen(false)}
+        onSubmit={handleSubmitCompletion} // ✅ 완료하기
       />
 
-      {/* AddGoalButton은 CompletionModal이 열려있을 때 숨김 */}
       {!isCompletionOpen && (
         <AddGoalButton onClick={() => setIsModalOpen(true)} />
       )}
 
-      {/* AddGoalModal */}
       {isModalOpen && (
         <AddGoalModal
           onClose={() => setIsModalOpen(false)}

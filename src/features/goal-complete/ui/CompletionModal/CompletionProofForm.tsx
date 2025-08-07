@@ -5,7 +5,13 @@ import CompletionProofSelector from './CompletionProofSelector';
 import CompletionFooter from './CompletionFooter';
 import Image from 'next/image';
 
-export default function CompletionProofForm() {
+type CompletionProofFormProps = {
+  onSubmit: () => void;
+};
+
+export default function CompletionProofForm({
+  onSubmit,
+}: CompletionProofFormProps) {
   const [selectedType, setSelectedType] = useState<'text' | 'photo'>('text');
   const [textValue, setTextValue] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -74,7 +80,7 @@ export default function CompletionProofForm() {
         </div>
       </div>
       <div className="mt-6">
-        <CompletionFooter isActive={isValid} />
+        <CompletionFooter isActive={isValid} onClick={onSubmit} />
       </div>
     </div>
   );
