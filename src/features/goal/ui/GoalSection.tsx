@@ -10,6 +10,7 @@ import CompletionModal from '@/features/goal-complete/ui/CompletionModal/Complet
 import { RecordSettingsModal } from './RecordSettingsModal';
 import { usePostStore } from '@/shared/store/post'; // ✅ Zustand store import
 import { Post } from '@/entities/post/model/post';
+
 export function GoalSection() {
   const [goals, setGoals] = useState([
     { id: 1, category: '운동', title: '30분 걷기', score: 70 },

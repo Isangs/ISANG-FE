@@ -14,10 +14,16 @@ export const usePostStore = create(
     (set) => ({
       posts: [],
       setPosts: (posts) => set({ posts }),
-      addPost: (post) =>
+      addPost: (post) => {
+        // 할일 완료 API 호출
+
+        // 피드 리스트 조회 API 호출 후 상태 업데이트
+        set;
+
         set((state) => ({
           posts: [post, ...state.posts],
-        })),
+        }));
+      },
     }),
     {
       name: 'post-storage', // localStorage에 저장될 키
