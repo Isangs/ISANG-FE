@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { GoalDetailCard } from './GoalDetailCard';
 
 type Goal = {
   name: string;
@@ -8,6 +9,7 @@ type Goal = {
   total: number;
   colorFrom: string;
   colorTo: string;
+  colorHex: string;
   daily: number[];
 };
 
@@ -18,6 +20,7 @@ const goals: Goal[] = [
     total: 400,
     colorFrom: 'from-orange-400',
     colorTo: 'to-red-500',
+    colorHex: '#f97316',
     daily: [45, 52, 38, 62, 48, 55, 60],
   },
   {
@@ -26,6 +29,7 @@ const goals: Goal[] = [
     total: 400,
     colorFrom: 'from-blue-400',
     colorTo: 'to-indigo-500',
+    colorHex: '#3b82f6',
     daily: [30, 42, 55, 48, 62, 45, 52],
   },
   {
@@ -34,6 +38,7 @@ const goals: Goal[] = [
     total: 400,
     colorFrom: 'from-green-400',
     colorTo: 'to-emerald-500',
+    colorHex: '#10b981',
     daily: [65, 72, 58, 78, 70, 82, 75],
   },
   {
@@ -42,6 +47,7 @@ const goals: Goal[] = [
     total: 400,
     colorFrom: 'from-cyan-400',
     colorTo: 'to-teal-500',
+    colorHex: '#06b6d4',
     daily: [25, 35, 42, 38, 45, 40, 48],
   },
   {
@@ -50,11 +56,10 @@ const goals: Goal[] = [
     total: 400,
     colorFrom: 'from-purple-400',
     colorTo: 'to-pink-500',
+    colorHex: '#a855f7',
     daily: [20, 28, 32, 35, 38, 42, 45],
   },
 ];
-
-const days = ['월', '화', '수', '목', '금', '토', '일'];
 
 export default function GoalDetailModal({
   isOpen,
@@ -76,41 +81,9 @@ export default function GoalDetailModal({
           </button>
         </div>
 
-        {/* 목표별 카드 */}
+        {/* 목표 카드 리스트 */}
         {goals.map((goal) => (
-          <div
-            key={goal.name}
-            className="mb-6 rounded-2xl bg-gradient-to-br from-[#FAF5FF] to-[#FDF2F8] p-4"
-          >
-            {/* 헤더 */}
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`h-4 w-4 rounded-full bg-gradient-to-r ${goal.colorFrom} ${goal.colorTo}`}
-                />
-                <span className="text-sm font-medium text-gray-800">
-                  {goal.name}
-                </span>
-              </div>
-              <span className="text-sm font-bold text-purple-600">
-                {goal.score}/{goal.total}점
-              </span>
-            </div>
-
-            {/* 요일 */}
-            <div className="mb-2 flex justify-between px-1 text-[12px] text-gray-600">
-              {days.map((day) => (
-                <span key={day}>{day}</span>
-              ))}
-            </div>
-
-            {/* 점수 */}
-            <div className="flex justify-between px-1 text-[12px] text-gray-700">
-              {goal.daily.map((score, i) => (
-                <span key={i}>{score}점</span>
-              ))}
-            </div>
-          </div>
+          <GoalDetailCard key={goal.name} goal={goal} />
         ))}
       </div>
     </div>
