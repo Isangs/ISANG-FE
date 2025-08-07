@@ -1,9 +1,54 @@
 'use client';
 
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import { updateUser } from '@/shared/api/user';
+import { User } from '@/shared/types/user';
 
-export function EditProfileModal({ onClose }: { onClose: () => void }) {
+type Props = {
+  user: User;
+  onClose: () => void;
+  onSave: (updatedUser: User) => void;
+};
+
+export function EditProfileModal({ user, onClose, onSave }: Props) {
+  const [form, setForm] = useState(user);
+  const [previewUrl, setPreviewUrl] = useState('/img/kakao.png'); // 초기 이미지
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async () => {
+    // 1. 유저 정보 업데이트
+    await updateUser(form);
+
+    // 2. 프로필 이미지도 서버에 따로 업로드 요청 보내야 함 (multipart/form-data)
+    // if (imageFile) {
+    //   const formData = new FormData();
+    //   formData.append('image', imageFile);
+    //   await fetch('/api/user/upload-image', {
+    //     method: 'POST',
+    //     body: formData,
+    //   });
+    // }
+
+    onSave(form);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="relative max-h-[75vh] w-[343px] overflow-y-auto rounded-3xl bg-white/90 p-6">
@@ -15,70 +60,82 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {/* 프로필 이미지 */}
+        {/* 이미지 */}
         <div className="flex flex-col items-center">
-          <div className="rounded-full bg-gradient-to-r from-purple-400 to-pink-400 p-1">
-            <div className="h-[88px] w-[88px] overflow-hidden rounded-full bg-white">
-              <Image
-                src="/img/kakao.png"
-                alt="프로필"
-                width={88}
-                height={88}
-                className="h-full w-full object-cover"
-              />
+          <label className="cursor-pointer">
+            <div className="rounded-full bg-gradient-to-r from-purple-400 to-pink-400 p-1">
+              <div className="h-[88px] w-[88px] overflow-hidden rounded-full bg-white">
+                <Image
+                  src={previewUrl}
+                  alt="프로필"
+                  width={88}
+                  height={88}
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
-          </div>
-          <p className="mt-2 text-sm font-medium text-purple-600">사진 변경</p>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleImageChange}
+            />
+            <p className="mt-2 text-center text-sm font-medium text-purple-600">
+              사진 변경
+            </p>
+          </label>
         </div>
 
-        {/* 입력 폼들 */}
+        {/* 입력 폼 */}
         <div className="mt-6 space-y-4">
-          {/* 이름 */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               이름
             </label>
-            <div className="rounded-xl border border-white/20 bg-white/70 p-3 backdrop-blur-sm">
-              <span className="text-sm text-black">김이상</span>
-            </div>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
+            />
           </div>
-
-          {/* 닉네임 */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               닉네임
             </label>
-            <div className="rounded-xl border border-white/20 bg-white/70 p-3 backdrop-blur-sm">
-              <span className="text-sm text-black">@isang_achiever</span>
-            </div>
+            <input
+              name="nickname"
+              value={form.nickname}
+              onChange={handleChange}
+              className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
+            />
           </div>
-
-          {/* 이메일 */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               이메일
             </label>
             <input
-              type="email"
-              placeholder="isang@example.com"
-              className="w-full rounded-xl border border-white/20 bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
-
-          {/* 자기소개 */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               자기소개
             </label>
             <textarea
+              name="bio"
+              value={form.bio}
+              onChange={handleChange}
               rows={3}
-              defaultValue="매일 성장하는 개발자입니다!"
-              className="w-full resize-none rounded-xl border border-white/20 bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
+              className="w-full resize-none rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
         </div>
 
-        {/* 버튼들 */}
+        {/* 버튼 */}
         <div className="mt-6 flex justify-between">
           <button
             onClick={onClose}
@@ -86,7 +143,10 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
           >
             취소
           </button>
-          <button className="ml-3 w-1/2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-sm font-medium text-white">
+          <button
+            onClick={handleSubmit}
+            className="ml-3 w-1/2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-sm font-medium text-white"
+          >
             저장
           </button>
         </div>
