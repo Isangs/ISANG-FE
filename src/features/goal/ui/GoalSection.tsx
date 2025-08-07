@@ -7,7 +7,7 @@ import { GoalHeader } from './GoalHeader';
 import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
 import CompletionModal from '@/features/goal-complete/ui/CompletionModal/CompletionModal';
-
+import { RecordSettingsModal } from './RecordSettingsModal';
 const initialGoals = [
   { id: 1, category: '운동', title: '30분 걷기', score: 70 },
   { id: 2, category: '학습', title: '리액트 복습', score: 85 },
@@ -20,7 +20,7 @@ export function GoalSection() {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [completedGoalIds, setCompletedGoalIds] = useState<number[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null); // ✅ 목표 선택
+  const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null); // 목표 선택
   const [categories, setCategories] = useState([
     { name: '전체', color: 'gray' },
     { name: '운동', color: 'gray' },
@@ -31,6 +31,7 @@ export function GoalSection() {
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
+  const [isRecordSettingsOpen, setIsRecordSettingsOpen] = useState(false); // 추가
 
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
     const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
@@ -65,6 +66,9 @@ export function GoalSection() {
     }
     setIsCompletionOpen(false);
     setSelectedGoalId(null);
+    setTimeout(() => {
+      setIsRecordSettingsOpen(true);
+    }, 300);
   };
 
   const filteredGoals =
@@ -128,6 +132,10 @@ export function GoalSection() {
             setSelectedCategory(category.name);
           }}
         />
+      )}
+
+      {isRecordSettingsOpen && (
+        <RecordSettingsModal onClose={() => setIsRecordSettingsOpen(false)} />
       )}
     </section>
   );
