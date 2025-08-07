@@ -1,16 +1,38 @@
 'use client';
-
+import { useEffect, useState } from 'react';
 import { X, Flame, Trophy, Star, Rocket, Crown, MapPin } from 'lucide-react';
 import { BadgeCard } from './BadgeCard';
 import { BadgeProgressCard } from './BadgeProgressCard';
-
+import { cn } from '@/lib/utils';
 export function BadgeDetailModal({ onClose }: { onClose: () => void }) {
+  const [visible, setVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(() => {
+      setIsMounted(false);
+      onClose();
+    }, 300);
+  };
+  if (!isMounted) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative h-[90vh] w-full max-w-sm overflow-hidden rounded-3xl bg-white px-5 pt-6 pb-10">
+      <div
+        className={cn(
+          'relative h-[90vh] w-full max-w-sm overflow-hidden rounded-3xl bg-white px-5 pt-6 pb-10 transition-all duration-300 ease-out',
+          visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0',
+        )}
+      >
         {/* 닫기 버튼 */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-7 right-6 text-gray-400 hover:text-gray-600"
         >
           <X size={24} />

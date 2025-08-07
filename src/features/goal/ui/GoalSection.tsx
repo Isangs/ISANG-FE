@@ -106,7 +106,7 @@ export function GoalSection() {
       <CompletionModal
         isOpen={isCompletionOpen}
         onClose={() => setIsCompletionOpen(false)}
-        onSubmit={handleSubmitCompletion} // ✅ 완료하기
+        onSubmit={handleSubmitCompletion} // 완료하기
       />
 
       {!isCompletionOpen && (
