@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import { updateUser } from '@/shared/api/user';
@@ -16,6 +16,22 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
   const [form, setForm] = useState(user);
   const [previewUrl, setPreviewUrl] = useState('/img/kakao.png'); // 초기 이미지
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10); // show trigger
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(() => {
+      setIsMounted(false);
+      onClose();
+    }, 300); // match transition time
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -49,13 +65,25 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
     onClose();
   };
 
+  if (!isMounted) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative max-h-[75vh] w-[343px] overflow-y-auto rounded-3xl bg-white/90 p-6">
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div
+        className={`relative max-h-[75vh] w-[343px] overflow-y-auto rounded-3xl bg-white/90 p-6 transition-all duration-300 ${
+          isVisible
+            ? 'translate-y-0 scale-100 opacity-100'
+            : 'translate-y-4 scale-95 opacity-0'
+        }`}
+      >
         {/* 헤더 */}
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">프로필</h2>
-          <button onClick={onClose}>
+          <button onClick={handleClose}>
             <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
           </button>
         </div>
@@ -136,18 +164,12 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
         </div>
 
         {/* 버튼 */}
-        <div className="mt-6 flex justify-between">
-          <button
-            onClick={onClose}
-            className="w-1/2 rounded-xl bg-gray-200 px-4 py-3 text-sm font-medium text-gray-700"
-          >
-            취소
-          </button>
+        <div className="mt-6">
           <button
             onClick={handleSubmit}
-            className="ml-3 w-1/2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-sm font-medium text-white"
+            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:brightness-110 active:scale-95"
           >
-            저장
+            저장하기
           </button>
         </div>
       </div>
