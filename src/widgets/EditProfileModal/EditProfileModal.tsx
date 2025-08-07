@@ -6,9 +6,9 @@ import Image from 'next/image';
 export function EditProfileModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-[343px] max-w-md rounded-3xl bg-white/90 p-6">
+      <div className="relative max-h-[75vh] w-[343px] overflow-y-auto rounded-3xl bg-white/90 p-6">
         {/* 헤더 */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">프로필</h2>
           <button onClick={onClose}>
             <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -28,11 +28,11 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
               />
             </div>
           </div>
-          <p className="mt-3 text-sm font-medium text-purple-600">사진 변경</p>
+          <p className="mt-2 text-sm font-medium text-purple-600">사진 변경</p>
         </div>
 
         {/* 입력 폼들 */}
-        <div className="mt-6 space-y-5">
+        <div className="mt-6 space-y-4">
           {/* 이름 */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -72,8 +72,8 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
             </label>
             <textarea
               rows={3}
-              className="w-full resize-none rounded-xl border border-white/20 bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
               defaultValue="매일 성장하는 개발자입니다!"
+              className="w-full resize-none rounded-xl border border-white/20 bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
         </div>
