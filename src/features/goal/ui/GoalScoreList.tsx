@@ -1,5 +1,8 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
+import GoalDetailModal from './GoalDetailModal';
 
 const goals = [
   {
@@ -45,51 +48,64 @@ const goals = [
 ];
 
 export default function GoalScoreList() {
-  return (
-    <div className="w-full max-w-xl rounded-3xl bg-white/80 p-10 shadow-md">
-      <div className="flex items-center justify-between pb-4">
-        <h2 className="text-[18px] font-bold text-gray-900">목표별 점수</h2>
-        <button className="text-[14px] font-normal text-purple-600">
-          자세히 보기
-        </button>
-      </div>
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-      {goals.map((goal) => (
-        <div key={goal.name} className="pt-4 first:pt-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  'h-4 w-4 rounded-full bg-gradient-to-r',
-                  goal.color,
-                )}
-              />
-              <span className="text-[14px] font-medium text-gray-700">
-                {goal.name}
+  return (
+    <>
+      <div className="w-full max-w-xl rounded-3xl bg-white/80 p-10 shadow-md">
+        <div className="flex items-center justify-between pb-4">
+          <h2 className="text-[18px] font-bold text-gray-900">목표별 점수</h2>
+          <button
+            className="text-[14px] font-normal text-purple-600"
+            onClick={() => setIsModalOpen(true)}
+          >
+            자세히 보기
+          </button>
+        </div>
+
+        {goals.map((goal) => (
+          <div key={goal.name} className="pt-4 first:pt-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    'h-4 w-4 rounded-full bg-gradient-to-r',
+                    goal.color,
+                  )}
+                />
+                <span className="text-[14px] font-medium text-gray-700">
+                  {goal.name}
+                </span>
+              </div>
+              <div className="flex items-center text-[14px]">
+                <span className="font-bold text-purple-600">
+                  {goal.score}점
+                </span>
+                <span className="ml-2 text-gray-500">/ {goal.total}점</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-3">
+              <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className={cn(
+                    'h-full rounded-full bg-gradient-to-r shadow-sm',
+                    goal.color,
+                    goal.barWidth,
+                  )}
+                />
+              </div>
+              <span className="w-[32px] text-right text-[14px] font-medium text-gray-600">
+                {goal.percent}
               </span>
             </div>
-            <div className="flex items-center text-[14px]">
-              <span className="font-bold text-purple-600">{goal.score}점</span>
-              <span className="ml-2 text-gray-500">/ {goal.total}점</span>
-            </div>
           </div>
-
-          <div className="flex items-center gap-2 pt-3">
-            <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
-              <div
-                className={cn(
-                  'h-full rounded-full bg-gradient-to-r shadow-sm',
-                  goal.color,
-                  goal.barWidth,
-                )}
-              />
-            </div>
-            <span className="w-[32px] text-right text-[14px] font-medium text-gray-600">
-              {goal.percent}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      <GoalDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 }
