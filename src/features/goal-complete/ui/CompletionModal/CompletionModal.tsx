@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { CompletionHeader } from './CompletionHeader';
 import CompletionProofForm from './CompletionProofForm';
+import { FeedType } from '@/shared/store/post';
 
 type CompletionModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (feedType: FeedType) => void;
 };
 
 export default function CompletionModal({

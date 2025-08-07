@@ -2,11 +2,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Post } from '@/entities/post/model/post';
+import { instance } from '@/lib/axios';
+
+export enum FeedType {
+  TEXT,
+  IMAGE,
+}
 
 interface PostStore {
   posts: Post[];
   setPosts: (posts: Post[]) => void;
-  addPost: (post: Post) => void;
+  addPost: (post: Post, feedType: FeedType) => void;
 }
 
 export const usePostStore = create(
@@ -14,15 +20,13 @@ export const usePostStore = create(
     (set) => ({
       posts: [],
       setPosts: (posts) => set({ posts }),
-      addPost: (post) => {
-        // 할일 완료 API 호출
+      addPost: async (post, feedType) => {
+        const url = `/feed/${feedType === FeedType.IMAGE ? 'image' : 'text'}/${post.id}`;
+        const { data }: { data: Post[] } = await instance.post(url);
 
-        // 피드 리스트 조회 API 호출 후 상태 업데이트
-        set;
-
-        set((state) => ({
-          posts: [post, ...state.posts],
-        }));
+        set({
+          posts: data,
+        });
       },
     }),
     {

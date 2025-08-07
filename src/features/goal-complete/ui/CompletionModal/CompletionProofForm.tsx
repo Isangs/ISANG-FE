@@ -4,21 +4,22 @@ import { useState } from 'react';
 import CompletionProofSelector from './CompletionProofSelector';
 import CompletionFooter from './CompletionFooter';
 import Image from 'next/image';
+import { FeedType } from '@/shared/store/post';
 
 type CompletionProofFormProps = {
-  onSubmit: () => void;
+  onSubmit: (feedType: FeedType) => void;
 };
 
 export default function CompletionProofForm({
   onSubmit,
 }: CompletionProofFormProps) {
-  const [selectedType, setSelectedType] = useState<'text' | 'photo'>('text');
+  const [selectedType, setSelectedType] = useState<FeedType>(FeedType.TEXT);
   const [textValue, setTextValue] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const isValid =
-    (selectedType === 'text' && textValue.trim() !== '') ||
-    (selectedType === 'photo' && photoPreview !== null);
+    (selectedType === FeedType.TEXT && textValue.trim() !== '') ||
+    (selectedType === FeedType.IMAGE && photoPreview !== null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -27,6 +28,10 @@ export default function CompletionProofForm({
       setPhotoPreview(previewUrl);
     }
   }
+
+  const onClick = () => {
+    onSubmit(selectedType);
+  };
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
@@ -41,7 +46,7 @@ export default function CompletionProofForm({
         />
 
         <div className="h-[116px] w-full rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-          {selectedType === 'text' && (
+          {selectedType === FeedType.TEXT && (
             <textarea
               className="h-full w-full resize-none bg-transparent text-sm text-white placeholder-white/60 outline-none"
               placeholder="완료 내용을 입력하세요..."
@@ -50,7 +55,7 @@ export default function CompletionProofForm({
             />
           )}
 
-          {selectedType === 'photo' && (
+          {selectedType === FeedType.IMAGE && (
             <label
               htmlFor="photo-upload"
               className="flex h-full w-full cursor-pointer rounded-2xl"
@@ -80,7 +85,7 @@ export default function CompletionProofForm({
         </div>
       </div>
       <div className="mt-6">
-        <CompletionFooter isActive={isValid} onClick={onSubmit} />
+        <CompletionFooter isActive={isValid} onClick={onClick} />
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
 import CompletionModal from '@/features/goal-complete/ui/CompletionModal/CompletionModal';
 import { RecordSettingsModal } from './RecordSettingsModal';
-import { usePostStore } from '@/shared/store/post'; // ✅ Zustand store import
+import { FeedType, usePostStore } from '@/shared/store/post'; // ✅ Zustand store import
 import { Post } from '@/entities/post/model/post';
 
 export function GoalSection() {
@@ -35,6 +35,9 @@ export function GoalSection() {
   const [isRecordSettingsOpen, setIsRecordSettingsOpen] = useState(false);
   const [completedGoalIds, setCompletedGoalIds] = useState<number[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null);
+  const [selectedFeedType, setSelectedFeedType] = useState<FeedType>(
+    FeedType.TEXT,
+  );
   const addPost = usePostStore((state) => state.addPost);
 
   const handleAddGoal = (newGoal: { title: string; category: string }) => {
@@ -62,12 +65,13 @@ export function GoalSection() {
     setIsCompletionOpen(true);
   };
 
-  const handleSubmitCompletion = () => {
+  const handleSubmitCompletion = (feedType: FeedType) => {
     if (selectedGoalId !== null) {
       setCompletedGoalIds((prev) =>
         prev.includes(selectedGoalId) ? prev : [...prev, selectedGoalId],
       );
     }
+    setSelectedFeedType(feedType);
     setIsCompletionOpen(false);
     setSelectedGoalId(null);
     setTimeout(() => {
@@ -95,7 +99,7 @@ export function GoalSection() {
         commentCount: 0,
       };
       console.log('🔥 newPost 생성됨', newPost);
-      addPost(newPost);
+      addPost(newPost, selectedFeedType);
     }
 
     setIsRecordSettingsOpen(false);

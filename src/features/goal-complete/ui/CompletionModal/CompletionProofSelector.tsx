@@ -1,10 +1,11 @@
 'use client';
 
+import { FeedType } from '@/shared/store/post';
 import { Pencil, Camera } from 'lucide-react';
 
 type Props = {
-  selectedType: 'text' | 'photo';
-  onSelect: (type: 'text' | 'photo') => void;
+  selectedType: FeedType;
+  onSelect: (type: FeedType) => void;
 };
 
 export default function CompletionProofSelector({
@@ -14,9 +15,9 @@ export default function CompletionProofSelector({
   return (
     <div className="mb-4 flex justify-between gap-2">
       <button
-        onClick={() => onSelect('text')}
+        onClick={() => onSelect(FeedType.TEXT)}
         className={`flex h-[77px] w-full flex-col items-center justify-center gap-1 rounded-xl ${
-          selectedType === 'text'
+          selectedType === FeedType.TEXT
             ? 'bg-white text-purple-600'
             : 'bg-white/20 text-white'
         } shadow`}
@@ -25,9 +26,9 @@ export default function CompletionProofSelector({
         <span className="text-xs font-semibold">텍스트</span>
       </button>
       <button
-        onClick={() => onSelect('photo')}
+        onClick={() => onSelect(FeedType.IMAGE)}
         className={`flex h-[77px] w-full flex-col items-center justify-center gap-1 rounded-xl ${
-          selectedType === 'photo'
+          selectedType === FeedType.IMAGE
             ? 'bg-white text-purple-600'
             : 'bg-white/20 text-white'
         } shadow`}

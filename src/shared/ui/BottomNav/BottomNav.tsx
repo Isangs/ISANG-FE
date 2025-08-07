@@ -1,12 +1,11 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Plus, User, Globe } from 'lucide-react';
+import { Home, User, Globe } from 'lucide-react';
 import clsx from 'clsx';
 
 const navItems = [
   { name: 'Home', icon: Home, path: '/home' },
-  { name: 'Add', icon: Plus, path: '/add' },
   { name: 'My', icon: User, path: '/mypage' },
   { name: 'Feed', icon: Globe, path: '/feed' },
 ];

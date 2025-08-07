@@ -8,7 +8,7 @@ export default function FeedHeader({
   onSearchClick: () => void;
 }) {
   return (
-    <header className="flex h-[72px] w-full max-w-[375px] items-center justify-between px-4">
+    <header className="flex h-[72px] w-full items-center justify-between px-4">
       <h1 className="text-xl font-bold text-gray-800">피드</h1>
       <div className="flex items-center gap-6 text-gray-700">
         <button onClick={onSearchClick}>
