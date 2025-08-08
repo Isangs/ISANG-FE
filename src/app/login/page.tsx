@@ -1,14 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-
+import { KakaoLoginButton } from '@/features/auth/ui/KakaoLoginButton';
 export default function LoginPage() {
-  const router = useRouter();
-
-  const handleLogin = () => {
-    router.push('/mypage');
-  };
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF] p-4">
       <div className="mb-[16rem] flex flex-col items-center">
@@ -18,15 +11,7 @@ export default function LoginPage() {
         <p className="mt-1 text-gray-500">더 나은 하루를 만들어보세요</p>
       </div>
 
-      {/* Kakao 로그인 버튼 */}
-      <button
-        onClick={handleLogin}
-        className="mb-6 flex h-[4rem] w-[21rem] items-center justify-center rounded-xl bg-yellow-400 p-4 font-medium text-black transition hover:bg-yellow-300"
-      >
-        <Image src="/kakao.png" alt="Kakao" width={20} height={20} />
-        <span className="ml-2">Kakao로 시작하기</span>
-      </button>
-
+      <KakaoLoginButton />
       {/* 약관 문구 */}
       <div>
         <p className="mt-8 text-center text-[0.8rem] text-gray-500">

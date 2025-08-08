@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const isLoggedIn = false;
+const PROTECTED = ['/mypage', '/settings'];
 
-  if (!isLoggedIn && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
+export function middleware(req: NextRequest) {
+  if (PROTECTED.some((p) => req.nextUrl.pathname.startsWith(p))) {
+    const hasToken = req.cookies.has('accessToken');
+    if (!hasToken) {
+      const login = new URL('/login', req.url);
+      return NextResponse.redirect(login);
+    }
   }
-
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/dashboard/:path*'],
-};

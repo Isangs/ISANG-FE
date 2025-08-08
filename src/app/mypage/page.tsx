@@ -7,7 +7,18 @@ import BadgeGallery from '@/features/badge/ui/BadgeGallery';
 import ActivityFeed from '@/widgets/ActivityFeed/ActivityFeed';
 import RecordList from '@/widgets/RecordList/ RecordList';
 import { Settings } from 'lucide-react';
-export default function MyPage() {
+
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+export default async function MyPage() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken');
+
+  if (!accessToken) {
+    redirect('/login');
+  }
+
   return (
     <MainLayout>
       {/* 상단 고정 영역 */}
