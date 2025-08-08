@@ -14,7 +14,7 @@ type Props = {
 
 export function EditProfileModal({ user, onClose, onSave }: Props) {
   const [form, setForm] = useState(user);
-  const [previewUrl, setPreviewUrl] = useState('/img/kakao.png'); // 초기 이미지
+  const [previewUrl, setPreviewUrl] = useState(user.profileUrl); // 초기 이미지
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [isVisible, setIsVisible] = useState(false);

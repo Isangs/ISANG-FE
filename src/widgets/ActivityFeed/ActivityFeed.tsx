@@ -1,42 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import axios from 'axios';
 
-const initialActivities = [
-  {
-    icon: <Check size={16} className="text-white" />,
-    title: '30분 조깅 완료',
-    time: '2시간 전',
-    description: '한강공원에서 3km 달리기 완료!',
-  },
-  {
-    icon: <Check size={16} className="text-white" />,
-    title: '영어 단어 50개 암기',
-    time: '4시간 전',
-    description: '오늘 새로운 단어 50개 외웠어요.',
-  },
-  {
-    icon: <Check size={16} className="text-white" />,
-    title: '프로젝트 회의 참석',
-    time: '어제',
-    description: '팀 회의에서 새로운 아이디어 제안',
-  },
-  {
-    icon: <Check size={16} className="text-white" />,
-    title: '책 30쪽 읽기',
-    time: '2일 전',
-    description: '자기개발서를 집중해서 읽었어요.',
-  },
-];
+interface ActivityFeedProps {
+  taskMessage: string;
+  createdAt: string;
+  content: string;
+}
 
 export default function ActivityFeed() {
   const [expanded, setExpanded] = useState(false);
-  const [activityList, setActivityList] = useState(initialActivities);
+  const [activityList, setActivityList] = useState<ActivityFeedProps[]>();
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      const { data } = await axios.get('/api/activity')
+      setActivityList(data.activities)
+    }
+
+    fetchActivities()
+  }, []);
 
   const displayedActivities = expanded
     ? activityList
-    : activityList.slice(0, 2);
+    : activityList?.slice(0, 2);
 
   const handleDelete = (index: number) => {
     const updated = [...activityList];
