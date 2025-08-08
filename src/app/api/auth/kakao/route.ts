@@ -4,7 +4,7 @@ async function exchangeToken(code: string) {
   const form = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: process.env.KAKAO_CLIENT_ID!,
-    redirect_uri: process.env.KAKAO_REDIRECT_URI!, // 콘솔과 동일
+    redirect_uri: process.env.KAKAO_REDIRECT_URI!,
     code,
   });
   const sec = process.env.KAKAO_CLIENT_SECRET;
@@ -22,7 +22,6 @@ async function exchangeToken(code: string) {
   return r.json();
 }
 
-// 기존 POST는 놔둬도 되고, 아래 GET만 추가해도 됩니다.
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);

@@ -14,7 +14,7 @@ export default function LoginPage() {
       <KakaoLoginButton />
       {/* 약관 문구 */}
       <div>
-        <p className="mㅌxxxxt-8 text-center text-[0.8rem] text-gray-500">
+        <p className="mxt-8 text-center text-[0.8rem] text-gray-500">
           로그인하면{' '}
           <span className="font-medium text-purple-500">이용약관</span> 및{' '}
           <span className="font-medium text-purple-500">개인정보 처리방침</span>
