@@ -4,7 +4,7 @@ export function KakaoLoginButton() {
 
   return (
     <button
-      onClick={() => (window.location.href = `${API_BASE}/auth/kakao/login`)}
+      onClick={() => (window.location.href = `${API_BASE}/auth/oauth/kakao`)}
       className="mb-6 flex h-[4rem] w-[21rem] items-center justify-center rounded-xl bg-yellow-400 p-4 font-medium text-black transition hover:bg-yellow-300"
     >
       <Image src="/kakao.png" alt="Kakao" width={20} height={20} />
