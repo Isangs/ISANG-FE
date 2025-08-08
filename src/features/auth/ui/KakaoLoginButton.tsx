@@ -1,10 +1,26 @@
+'use client';
+
 import Image from 'next/image';
+
 export function KakaoLoginButton() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+  const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!;
+
+  const handleClick = () => {
+    const origin = window.location.origin;
+    const redirectUri = `${origin}/auth/oauth/kakao`;
+
+    const url =
+      `https://kauth.kakao.com/oauth/authorize` +
+      `?client_id=${clientId}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code`;
+
+    window.location.href = url;
+  };
 
   return (
     <button
-      onClick={() => (window.location.href = `${API_BASE}/auth/oauth/kakao`)}
+      onClick={handleClick}
       className="mb-6 flex h-[4rem] w-[21rem] items-center justify-center rounded-xl bg-yellow-400 p-4 font-medium text-black transition hover:bg-yellow-300"
     >
       <Image src="/kakao.png" alt="Kakao" width={20} height={20} />

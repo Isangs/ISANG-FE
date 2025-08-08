@@ -1,77 +1,46 @@
-// src/app/api/auth/kakao/route.ts
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+async function exchangeToken(code: string) {
+  const form = new URLSearchParams({
+    grant_type: 'authorization_code',
+    client_id: process.env.KAKAO_CLIENT_ID!,
+    redirect_uri: process.env.KAKAO_REDIRECT_URI!, // 콘솔과 동일
+    code,
+  });
+  const sec = process.env.KAKAO_CLIENT_SECRET;
+  if (sec) form.set('client_secret', sec);
+
+  const r = await fetch('https://kauth.kakao.com/oauth/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+    body: form,
+    cache: 'no-store',
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// 기존 POST는 놔둬도 되고, 아래 GET만 추가해도 됩니다.
+export async function GET(req: Request) {
   try {
-    const { code } = await req.json();
+    const url = new URL(req.url);
+    const code = url.searchParams.get('code');
+    const redirect = url.searchParams.get('redirect') || '/mypage';
+    if (!code) return NextResponse.redirect(new URL('/login', url));
 
-    if (!code) {
-      return NextResponse.json({ error: 'missing_code' }, { status: 400 });
-    }
+    const token = await exchangeToken(code);
 
-    const clientId = process.env.KAKAO_CLIENT_ID;
-    const clientSecret = process.env.KAKAO_CLIENT_SECRET;
-    const redirectUri = process.env.KAKAO_REDIRECT_URI;
-
-    if (!clientId || !redirectUri) {
-      return NextResponse.json(
-        {
-          error: 'env_missing',
-          detail: { clientId: !!clientId, redirectUri: !!redirectUri },
-        },
-        { status: 500 },
-      );
-    }
-
-    const form = new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      code,
-    });
-    if (clientSecret) {
-      form.set('client_secret', clientSecret);
-    }
-
-    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-      },
-      body: form,
-
-      cache: 'no-store',
-    });
-
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text().catch(() => '');
-      return NextResponse.json(
-        {
-          error: 'token_exchange_failed',
-          status: tokenRes.status,
-          body: errText,
-        },
-        { status: 400 },
-      );
-    }
-
-    const token = await tokenRes.json();
-    const accessToken = token.access_token as string | undefined;
-
-    if (!accessToken) {
-      return NextResponse.json({ error: 'no_access_token' }, { status: 400 });
-    }
-
-    // HttpOnly 쿠키로 저장
-    const res = NextResponse.json({ ok: true });
+    const res = NextResponse.redirect(new URL(redirect, url));
     res.cookies.set({
       name: 'accessToken',
-      value: accessToken,
+      value: token.access_token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
       path: '/',
-      maxAge: 60 * 60, // 1h
+      maxAge: 60 * 60,
     });
     return res;
   } catch (e) {
