@@ -1,30 +1,16 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function KakaoLoginButton() {
-  const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!;
-
-  const handleClick = () => {
-    const origin = window.location.origin;
-    const redirectUri = `${origin}/auth/oauth/kakao`;
-
-    const url =
-      `https://kauth.kakao.com/oauth/authorize` +
-      `?client_id=${clientId}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&response_type=code`;
-
-    window.location.href = url;
-  };
-
   return (
-    <button
-      onClick={handleClick}
+    <Link
+      href="https://festival-api.bricn.net/auth/oauth/kakao"
       className="mb-6 flex h-[4rem] w-[21rem] items-center justify-center rounded-xl bg-yellow-400 p-4 font-medium text-black transition hover:bg-yellow-300"
     >
       <Image src="/kakao.png" alt="Kakao" width={20} height={20} />
       <span className="ml-2">Kakao로 시작하기</span>
-    </button>
+    </Link>
   );
 }

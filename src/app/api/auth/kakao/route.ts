@@ -1,25 +1,34 @@
+// src/app/api/auth/kakao/route.ts
 import { NextResponse } from 'next/server';
 
-async function exchangeToken(code: string) {
-  const form = new URLSearchParams({
-    grant_type: 'authorization_code',
-    client_id: process.env.KAKAO_CLIENT_ID!,
-    redirect_uri: process.env.KAKAO_REDIRECT_URI!,
-    code,
-  });
-  const sec = process.env.KAKAO_CLIENT_SECRET;
-  if (sec) form.set('client_secret', sec);
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
+const PROVIDER_BASE = process.env.KAKAO_LOGIN_BASE_PATH ?? '/auth/oauth/login';
 
-  const r = await fetch('https://kauth.kakao.com/oauth/token', {
+async function exchangeTokenViaBackend(code: string, redirectUri: string) {
+  const endpoint = new URL(
+    `${PROVIDER_BASE.replace(/\/+$/, '')}/${encodeURIComponent(code)}`,
+    API_BASE,
+  ).toString();
+
+  console.log('[OAuth] calling backend', { endpoint, redirectUri });
+
+  const r = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    },
-    body: form,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ redirectUri }), // 백엔드가 body에 code도 필요하면 { code, redirectUri }
     cache: 'no-store',
   });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+
+  const text = await r.text(); // 응답 항상 확보
+  if (!r.ok) {
+    console.error('[OAuth] backend error', r.status, text);
+    throw new Error(`backend_login_failed: ${r.status} ${text}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { accessToken: undefined, raw: text };
+  }
 }
 
 export async function GET(req: Request) {
@@ -29,21 +38,36 @@ export async function GET(req: Request) {
     const redirect = url.searchParams.get('redirect') || '/mypage';
     if (!code) return NextResponse.redirect(new URL('/login', url));
 
-    const token = await exchangeToken(code);
+    const origin = `${url.protocol}//${url.host}`;
+    const redirectUri = `${origin}/auth/oauth/kakao`;
+    console.log('[OAuth] code received', { code, redirectUri });
+
+    const token = await exchangeTokenViaBackend(code, redirectUri);
+
+    const accessToken = token.accessToken ?? token.access_token;
+    const maxAge = token.expiresIn ?? token.expires_in ?? 3600;
+    if (!accessToken) throw new Error('No access token from backend');
 
     const res = NextResponse.redirect(new URL(redirect, url));
     res.cookies.set({
       name: 'accessToken',
-      value: token.access_token,
+      value: accessToken,
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       path: '/',
-      maxAge: 60 * 60,
+      maxAge,
     });
     return res;
   } catch (e) {
     const detail = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: 'unexpected', detail }, { status: 500 });
+    console.error('[OAuth] route failed', detail);
+    // 500 화면 대신 로그인으로 돌려보내고 에러 쿼리 붙이기(임시)
+    const url = new URL(req.url);
+    return NextResponse.redirect(
+      new URL(`/login?err=${encodeURIComponent(detail.slice(0, 200))}`, url),
+    );
+    // 또는 JSON 그대로 보이게 유지하려면 아래:
+    // return NextResponse.json({ error: 'unexpected', detail }, { status: 500 });
   }
 }
