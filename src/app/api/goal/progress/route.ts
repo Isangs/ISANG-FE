@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
 import { instance } from '@/lib/axios';
+import { cookies } from 'next/headers';
 
 export async function GET(req: Request) {
-  const { data } = await instance.get('/goal/progress', {
-    headers: {
-      Authorization: `Bearer ${process.env.API_TOKEN}`
-    }
-  })
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
 
-  return NextResponse.json(data.result);
+  try {
+    const { data } = await instance.get('/goal/progress', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return NextResponse.json(data.result);
+  } catch (error) {
+    return NextResponse.json({ goalProgressList: [] });
+  }
 }

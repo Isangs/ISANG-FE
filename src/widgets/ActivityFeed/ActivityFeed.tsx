@@ -12,15 +12,15 @@ interface ActivityFeedProps {
 
 export default function ActivityFeed() {
   const [expanded, setExpanded] = useState(false);
-  const [activityList, setActivityList] = useState<ActivityFeedProps[]>();
+  const [activityList, setActivityList] = useState<ActivityFeedProps[]>([]);
 
   useEffect(() => {
     const fetchActivities = async () => {
-      const { data } = await axios.get('/api/activity')
-      setActivityList(data.activities)
-    }
+      const { data } = await axios.get('/api/activity');
+      setActivityList(data.activities);
+    };
 
-    fetchActivities()
+    fetchActivities();
   }, []);
 
   const displayedActivities = expanded
@@ -53,14 +53,14 @@ export default function ActivityFeed() {
           >
             <div className="flex">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-purple-400 to-pink-400">
-                {activity.icon}
+                <Check className="h-6 w-6 text-white" />
               </div>
               <div className="ml-3 space-y-1">
                 <p className="text-sm font-medium text-gray-900">
-                  {activity.title}
+                  {activity.taskMessage}
                 </p>
-                <p className="text-sm text-gray-500">{activity.time}</p>
-                <p className="text-xs text-gray-400 italic">{`"${activity.description}"`}</p>
+                <p className="text-sm text-gray-500">{activity.createdAt}</p>
+                <p className="text-xs text-gray-400 italic">{`"${activity.content}"`}</p>
               </div>
             </div>
 

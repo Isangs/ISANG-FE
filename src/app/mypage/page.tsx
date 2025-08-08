@@ -8,9 +8,6 @@ import ActivityFeed from '@/widgets/ActivityFeed/ActivityFeed';
 import RecordList from '@/widgets/RecordList/ RecordList';
 import { Settings } from 'lucide-react';
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-
 export default async function MyPage() {
   // const cookieStore = await cookies();
   // const accessToken = cookieStore.get('accessToken');

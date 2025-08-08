@@ -16,7 +16,7 @@ export function ProfileCard() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data } = await axios.get('/api/user/detail')
+      const { data } = await axios.get('/api/user/detail');
       setUser({
         name: data.name,
         nickname: data.nickName,
@@ -24,11 +24,11 @@ export function ProfileCard() {
         bio: data.introduce,
         profileUrl: data.profileUrl,
         totalScore: data.totalScore,
-        level: data.level
-      })
-    }
+        level: data.level,
+      });
+    };
 
-    fetchProfile()
+    fetchProfile();
   }, []);
 
   return (
@@ -36,10 +36,10 @@ export function ProfileCard() {
       <Card className="w-full max-w-xl rounded-3xl bg-white/80 p-10 shadow-md">
         <CardContent className="flex items-center justify-center gap-6">
           {/* 이미지 */}
-          <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-purple-400 to-pink-400 p-1">
+          <div className="relative aspect-[1/1] h-20 w-20 rounded-full bg-gradient-to-tr from-purple-400 to-pink-400 p-1">
             <div className="h-full w-full overflow-hidden rounded-full bg-white">
-              {
-                user && <Image
+              {user && (
+                <Image
                   priority={true}
                   src={user.profileUrl}
                   alt="프로필 이미지"
@@ -47,7 +47,7 @@ export function ProfileCard() {
                   height={80}
                   className="h-full w-full object-cover"
                 />
-              }
+              )}
             </div>
           </div>
 
