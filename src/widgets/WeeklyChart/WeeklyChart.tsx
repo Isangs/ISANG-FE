@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   LineChart,
@@ -9,29 +9,31 @@ import {
   Area,
   ResponsiveContainer,
 } from 'recharts';
+import axios from 'axios';
 
-const exerciseData = [
-  { value: 50 },
-  { value: 65 },
-  { value: 40 },
-  { value: 90 },
-  { value: 60 },
-  { value: 70 },
-  { value: 80 },
-];
-
-const studyData = [
-  { value: 40 },
-  { value: 55 },
-  { value: 70 },
-  { value: 60 },
-  { value: 75 },
-  { value: 50 },
-  { value: 60 },
-];
+interface WeeklyChartProps {
+  goalId: number;
+  maxScore: number;
+  name: string;
+  totalScore: number;
+  dayList: {
+    day: string;
+    score: number;
+  }[];
+}
 
 export function WeeklyChart() {
   const [chartType, setChartType] = useState<'line' | 'area'>('line');
+  const [weeklyChartData, setWeeklyChartData] = useState<WeeklyChartProps[]>([]);
+
+  useEffect(() => {
+    const fetchWeeklyChart = async () => {
+      const { data } = await axios.get('/api/goal/weekly/achievement')
+      setWeeklyChartData(data)
+    }
+
+    fetchWeeklyChart()
+  }, []);
 
   return (
     <div className="w-full max-w-xl rounded-3xl bg-white/80 p-6 shadow-md">
@@ -62,73 +64,41 @@ export function WeeklyChart() {
         </div>
       </div>
 
-      {/* 운동 */}
-      <div className="mb-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-800">운동</span>
-          <span className="text-sm text-gray-600">340점</span>
-        </div>
-        <div className="h-32 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            {chartType === 'line' ? (
-              <LineChart data={exerciseData}>
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#a855f7"
-                  strokeWidth={3}
-                  dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
-                  activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
-                />
-              </LineChart>
-            ) : (
-              <AreaChart data={exerciseData}>
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#a855f7"
-                  fill="#a855f7"
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            )}
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* 학습 */}
-      <div className="rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-800">학습</span>
-          <span className="text-sm text-gray-600">288점</span>
-        </div>
-        <div className="h-32 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            {chartType === 'line' ? (
-              <LineChart data={studyData}>
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#a855f7"
-                  strokeWidth={3}
-                  dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
-                  activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
-                />
-              </LineChart>
-            ) : (
-              <AreaChart data={studyData}>
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#a855f7"
-                  fill="#a855f7"
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            )}
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {
+        weeklyChartData.map(item =>
+          <div key={item.goalId} className="mb-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-800">{item.name}</span>
+              <span className="text-sm text-gray-600">{item.totalScore}점</span>
+            </div>
+            <div className="h-32 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'line' ? (
+                  <LineChart data={item.dayList.map(day => { return { value: day.score }})}>
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#a855f7"
+                      strokeWidth={3}
+                      dot={{ r: 3, fill: '#a855f7', stroke: '#a855f7' }}
+                      activeDot={{ r: 6, fill: '#a855f7', stroke: '#a855f7' }}
+                    />
+                  </LineChart>
+                ) : (
+                  <AreaChart data={item.dayList.map(day => { return { value: day.score }})}>
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#a855f7"
+                      fill="#a855f7"
+                      strokeWidth={3}
+                    />
+                  </AreaChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          </div>)
+      }
     </div>
   );
 }
