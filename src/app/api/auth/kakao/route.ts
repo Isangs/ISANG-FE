@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { instance } from '@/lib/axios';
-
+import { serverInstance } from '@/lib/axios';
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -9,7 +8,7 @@ export async function GET(req: Request) {
 
     if (!code) return NextResponse.redirect(new URL('/login', url));
 
-    const { data } = await instance.post(`/auth/oauth/login/${code}`);
+    const { data } = await serverInstance.post(`/auth/oauth/login/${code}`);
     const accessToken = data.result.accessToken;
 
     const res = NextResponse.redirect(new URL(redirect, url));
