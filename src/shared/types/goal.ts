@@ -11,7 +11,7 @@ export type Task = {
   isDone: boolean;
 };
 
-export type CreateGoalDto = { title: string; category: string };
+export type CreateGoalDto = { name: string; colorCode: string };
 export type CreateTaskDto = { goalId: number; title: string };
 
 export type RecordSettingsDto = {

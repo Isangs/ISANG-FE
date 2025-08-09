@@ -33,7 +33,7 @@ export async function GET() {
       );
     }
 
-    const res = await fetch(`${API_BASE}/goal/list`, {
+    const res = await fetch(`${API_BASE}/task/list`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     });
