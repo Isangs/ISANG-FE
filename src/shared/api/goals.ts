@@ -19,8 +19,18 @@ type ApiTask = {
   deadline?: number[];
 };
 
-type GoalListRes = { result?: { goalList?: ApiGoal[] } };
+// 여러 형태 수용
+type GoalListRes =
+  | { result?: { goalList?: ApiGoal[] } }
+  | { goalList?: ApiGoal[] }
+  | { data?: ApiGoal[] }
+  | { content?: ApiGoal[] }
+  | ApiGoal[];
+
 type TaskListRes = { result?: { taskList?: ApiTask[] } };
+
+// create 응답도 단일/엔벨롭 모두 수용
+type CreateGoalRes = { result: ApiGoal } | ApiGoal;
 
 /** ---------- Normalizers ---------- **/
 const toGoal = (g: ApiGoal): Goal => ({
@@ -37,10 +47,35 @@ const toTask = (t: ApiTask): Task => ({
   isDone: (t.percentageScore ?? 0) >= 100,
 });
 
+/** ---------- Helpers ---------- **/
+function extractGoals(d: GoalListRes): ApiGoal[] {
+  if (Array.isArray(d)) return d;
+  if ('result' in d && d.result?.goalList) return d.result.goalList;
+  if ('goalList' in d && d.goalList) return d.goalList;
+  if ('data' in d && Array.isArray(d.data)) return d.data;
+  if ('content' in d && Array.isArray(d.content)) return d.content;
+  return [];
+}
+
+function hasResultGoal(d: CreateGoalRes): d is { result: ApiGoal } {
+  return typeof d === 'object' && d !== null && 'result' in d;
+}
+
 /** ---------- Goals ---------- **/
+// src/shared/api/goals.ts
 export async function fetchGoals(): Promise<Goal[]> {
   const { data } = await clientInstance.get<GoalListRes>('goal/list');
-  const list = data?.result?.goalList ?? [];
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[fetchGoals] raw data:', JSON.stringify(data));
+  }
+
+  const list = extractGoals(data);
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[fetchGoals] extracted length:', list.length);
+  }
+
   return list.map(toGoal);
 }
 
@@ -57,11 +92,13 @@ export async function createGoal(body: CreateGoalInput) {
 
   const colorCode = (body.colorCode ?? '#FFFFFF').trim();
 
-  const { data } = await clientInstance.post<Goal>('goal/create', {
+  const { data } = await clientInstance.post<CreateGoalRes>('goal/create', {
     name,
     colorCode,
   });
-  return data;
+
+  const raw: ApiGoal = hasResultGoal(data) ? data.result : data;
+  return toGoal(raw);
 }
 
 export async function deleteGoal(goalId: number) {

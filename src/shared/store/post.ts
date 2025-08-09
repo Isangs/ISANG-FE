@@ -1,8 +1,7 @@
-// shared/store/post.ts
+import { serverInstance } from '@/lib/axios';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Post } from '@/entities/post/model/post';
-import { instance } from '@/lib/axios';
 
 export enum FeedType {
   TEXT,
@@ -22,7 +21,7 @@ export const usePostStore = create(
       setPosts: (posts) => set({ posts }),
       addPost: async (post, feedType) => {
         const url = `/feed/${feedType === FeedType.IMAGE ? 'image' : 'text'}/${post.id}`;
-        const { data }: { data: Post[] } = await instance.post(url);
+        const { data }: { data: Post[] } = await serverInstance.post(url);
 
         set({
           posts: data,
