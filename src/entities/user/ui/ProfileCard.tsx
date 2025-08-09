@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Crown, Coins } from 'lucide-react';
 import { EditProfileModal } from '@/widgets/EditProfileModal/EditProfileModal';
 import { User } from '@/shared/types/user';
-import { instance } from '@/lib/axios';
+
 import axios from 'axios';
 
 export function ProfileCard() {

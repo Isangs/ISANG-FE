@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { serverInstance } from '@/lib/axios';
-import { Axios, AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 
 export async function GET() {
   const cookieStore = await cookies();

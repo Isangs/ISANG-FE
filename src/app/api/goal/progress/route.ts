@@ -1,20 +1,6 @@
 import { NextResponse } from 'next/server';
-import { serverInstance } from '@/lib/axios';
-import { cookies } from 'next/headers';
-
-export async function GET(req: Request) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-
-  try {
-    const { data } = await serverInstance.get('/goal/progress', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    return NextResponse.json(data.result);
-  } catch (error) {
-    return NextResponse.json({ goalProgressList: [] });
-  }
+import { GET_UPSTREAM } from '@/shared/api/upstream';
+export async function GET() {
+  const { status, data } = await GET_UPSTREAM('/goal/progress');
+  return NextResponse.json(data, { status });
 }

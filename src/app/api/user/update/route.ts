@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-
-export async function POST(req: Request) {
-  const user = await req.json();
-
-  console.log('서버에서 받은 유저 정보:', user);
-
-  return NextResponse.json({ success: true });
+import { PATCH_UPSTREAM } from '@/shared/api/upstream';
+export async function PATCH(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const { status, data } = await PATCH_UPSTREAM('/user/update', body);
+  return NextResponse.json(data, { status });
 }
