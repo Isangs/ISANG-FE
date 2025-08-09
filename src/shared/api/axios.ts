@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE ?? process.env.API_BASE ?? '',
+  baseURL: '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
@@ -20,3 +20,5 @@ api.interceptors.response.use(
     return Promise.reject(err);
   },
 );
+
+export default api;

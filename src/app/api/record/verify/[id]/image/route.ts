@@ -1,16 +1,15 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? process.env.API_BASE ?? '';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  process.env.API_BASE ??
+  process.env.API_URL ??
+  '';
 
-export async function POST(
-  req: Request,
-  ctx: { params: Promise<{ id: string }> },
-) {
+export async function POST(req: Request) {
   try {
-    // 0) 환경 점검
     if (!API_BASE) {
-      console.error('[verify:text] API_BASE is empty');
       return NextResponse.json(
         { isSuccess: false, code: 'COMMON500', message: 'API_BASE is empty' },
         { status: 500 },
@@ -18,45 +17,61 @@ export async function POST(
     }
 
     const cookieStore = await cookies();
-    const token = cookieStore.get('accessToken')?.value;
+    const token =
+      cookieStore.get('accessToken')?.value ??
+      cookieStore.get('access_token')?.value ??
+      cookieStore.get('Authorization')?.value ??
+      '';
+
     if (!token) {
-      console.warn('[verify:text] no accessToken cookie');
       return NextResponse.json(
         { isSuccess: false, code: 'COMMON403', message: 'No token' },
         { status: 401 },
       );
     }
 
-    const { id } = await ctx.params;
-    const body = (await req.json()) as { content?: string };
+    const body = (await req.json()) as { taskId?: number; imageUrl?: string };
+    if (typeof body.taskId !== 'number' || !body.imageUrl) {
+      return NextResponse.json(
+        {
+          isSuccess: false,
+          code: 'COMMON400',
+          message: 'taskId and imageUrl required',
+        },
+        { status: 400 },
+      );
+    }
 
-    const backendUrl = `${API_BASE}/record/verify/${id}/text`;
-    console.log(
-      '[verify:text] ->',
-      backendUrl,
-      'contentLen=',
-      body?.content?.length ?? 0,
-    );
-
-    const res = await fetch(backendUrl, {
+    const res = await fetch(`${API_BASE}/record/verify/image`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
       },
       body: JSON.stringify(body),
       cache: 'no-store',
     });
 
     const raw = await res.text();
-    let payload: unknown = {};
+    let parsed: unknown = {};
     try {
-      payload = raw ? (JSON.parse(raw) as unknown) : {};
+      parsed = raw ? JSON.parse(raw) : {};
     } catch {
-      payload = { message: raw };
+      parsed = { message: raw };
     }
-
-    console.log('[verify:text] <- status=', res.status, 'payload=', payload);
+    const obj = (parsed && typeof parsed === 'object' ? parsed : {}) as Record<
+      string,
+      unknown
+    >;
+    const payload = {
+      ...obj,
+      isSuccess: res.ok && obj['isSuccess'] !== false,
+      code: (obj['code'] as string | undefined) ?? `COMMON${res.status}`,
+      message:
+        (obj['message'] as string | undefined) ??
+        res.statusText ??
+        'Request failed',
+    };
 
     return NextResponse.json(payload, { status: res.status });
   } catch (err: unknown) {
@@ -66,7 +81,6 @@ export async function POST(
         : typeof err === 'string'
           ? err
           : 'Server error';
-    console.error('[verify:text] proxy error:', message);
     return NextResponse.json(
       { isSuccess: false, code: 'COMMON500', message },
       { status: 500 },

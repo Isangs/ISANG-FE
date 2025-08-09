@@ -7,7 +7,7 @@ const API_BASE =
   process.env.API_URL ??
   '';
 
-export async function POST(req: Request) {
+export async function GET() {
   try {
     if (!API_BASE) {
       return NextResponse.json(
@@ -17,11 +17,14 @@ export async function POST(req: Request) {
     }
 
     const cookieStore = await cookies();
-    const token =
+    const rawToken =
       cookieStore.get('accessToken')?.value ??
       cookieStore.get('access_token')?.value ??
       cookieStore.get('Authorization')?.value ??
       '';
+    const token = rawToken.startsWith('Bearer ')
+      ? rawToken.split(' ')[1]
+      : rawToken;
 
     if (!token) {
       return NextResponse.json(
@@ -30,25 +33,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = (await req.json()) as { taskId?: number; content?: string };
-    if (typeof body.taskId !== 'number' || !body.content) {
-      return NextResponse.json(
-        {
-          isSuccess: false,
-          code: 'COMMON400',
-          message: 'taskId and content required',
-        },
-        { status: 400 },
-      );
-    }
-
-    const res = await fetch(`${API_BASE}/record/verify/text`, {
-      method: 'POST', // 명세에 GET로 되어있어도 바디가 있으면 보통 POST. 실제 백엔드에 맞춰 필요시 GET+query로 교체
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
+    const res = await fetch(`${API_BASE}/goal/list`, {
+      headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     });
 
