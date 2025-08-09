@@ -1,11 +1,11 @@
-"use server"
+'use server';
 
 import axios from 'axios';
 
-export const instance = axios.create({
+export const serverInstance = axios.create({
   baseURL: process.env.API_URL,
-  withCredentials: true,
+  // withCredentials: true,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
