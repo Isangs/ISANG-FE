@@ -8,7 +8,11 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_BASE ||
   '';
 
-type Result<T> = { status: number; data: T | unknown };
+export type Result<T> = { status: number; data: T };
+
+type Query =
+  | URLSearchParams
+  | Record<string, string | number | boolean | null | undefined>;
 
 async function auth(): Promise<Record<string, string>> {
   const jar = await cookies();
@@ -16,7 +20,7 @@ async function auth(): Promise<Record<string, string>> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function unwrapError(e: unknown): Result<never> {
+function unwrapError(e: unknown): Result<unknown> {
   if (axios.isAxiosError(e)) {
     const err = e as AxiosError;
     return {
@@ -30,9 +34,9 @@ function unwrapError(e: unknown): Result<never> {
   };
 }
 
-export async function GET_UPSTREAM<T>(
+export async function GET_UPSTREAM<T = unknown>(
   path: string,
-  params?: Record<string, unknown>,
+  params?: Query,
 ): Promise<Result<T>> {
   if (!API_URL) throw new Error('API_URL missing');
   try {
@@ -42,11 +46,11 @@ export async function GET_UPSTREAM<T>(
     });
     return { status: res.status, data: res.data };
   } catch (e: unknown) {
-    return unwrapError(e);
+    return unwrapError(e) as Result<T>;
   }
 }
 
-export async function PATCH_UPSTREAM<T>(
+export async function PATCH_UPSTREAM<T = unknown>(
   path: string,
   body?: unknown,
 ): Promise<Result<T>> {
@@ -57,11 +61,13 @@ export async function PATCH_UPSTREAM<T>(
     });
     return { status: res.status, data: res.data };
   } catch (e: unknown) {
-    return unwrapError(e);
+    return unwrapError(e) as Result<T>;
   }
 }
 
-export async function DELETE_UPSTREAM<T>(path: string): Promise<Result<T>> {
+export async function DELETE_UPSTREAM<T = unknown>(
+  path: string,
+): Promise<Result<T>> {
   if (!API_URL) throw new Error('API_URL missing');
   try {
     const res = await axios.delete<T>(`${API_URL}${path}`, {
@@ -69,6 +75,6 @@ export async function DELETE_UPSTREAM<T>(path: string): Promise<Result<T>> {
     });
     return { status: res.status, data: res.data };
   } catch (e: unknown) {
-    return unwrapError(e);
+    return unwrapError(e) as Result<T>;
   }
 }

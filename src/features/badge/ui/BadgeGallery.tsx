@@ -1,80 +1,21 @@
 'use client';
 
-import { JSX, useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState, JSX } from 'react';
+import api from '@/shared/api/axios';
 import { Flame, Trophy, Star, Rocket, Crown, Medal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BadgeDetailModal } from './BadgeDetailModal';
-import api from '@/shared/api/axios';
 
-type UIBadge = {
-  id: string | number;
-  label: string;
-  locked: boolean;
-  progress?: number; // 0~100
-  iconType?: 'flame' | 'trophy' | 'star' | 'rocket' | 'crown' | 'medal';
-  gradient?: string;
-};
+type ApiBadge = { badge: string; name: string };
+type UIBadge = { id: string; label: string; icon: JSX.Element };
 
-// 서버 응답 타입(예상 키들)
-type ApiBadge = {
-  id?: string | number;
-  badgeId?: number;
-  label?: string;
-  name?: string;
-  locked?: boolean;
-  isLocked?: boolean;
-  progress?: number | string;
-  iconType?: UIBadge['iconType'] | string;
-  gradient?: string;
-};
-
-type BadgeListEnvelope =
-  | { result?: { badgeList?: ApiBadge[] } }
-  | { data?: ApiBadge[] }
-  | { content?: ApiBadge[] }
-  | ApiBadge[];
-
-// 타입가드
-function isObj(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null;
-}
-function hasResult(
-  d: BadgeListEnvelope,
-): d is { result: { badgeList?: ApiBadge[] } } {
-  return isObj(d) && 'result' in d;
-}
-function hasData(d: BadgeListEnvelope): d is { data?: ApiBadge[] } {
-  return isObj(d) && 'data' in d;
-}
-function hasContent(d: BadgeListEnvelope): d is { content?: ApiBadge[] } {
-  return isObj(d) && 'content' in d;
-}
-
-// 정규화
-function normalizeBadge(b: ApiBadge, i: number): UIBadge {
-  return {
-    id: b.id ?? b.badgeId ?? i,
-    label: b.label ?? b.name ?? '배지',
-    locked: Boolean(b.locked ?? b.isLocked ?? false),
-    progress:
-      typeof b.progress === 'number'
-        ? b.progress
-        : b.progress != null
-          ? Number(b.progress)
-          : undefined,
-    iconType: (b.iconType as UIBadge['iconType']) ?? 'star',
-    gradient: b.gradient,
-  };
-}
-
-const iconByType: Record<NonNullable<UIBadge['iconType']>, JSX.Element> = {
-  flame: <Flame size={32} />,
-  trophy: <Trophy size={32} />,
-  star: <Star size={32} />,
-  rocket: <Rocket size={32} />,
-  crown: <Crown size={32} />,
-  medal: <Medal size={32} />,
+const iconByBadge: Record<string, JSX.Element> = {
+  THREE_DAY: <Flame size={32} />,
+  HUNDRED_SCORE: <Trophy size={32} />,
+  PERFECT_WEEK: <Star size={32} />,
+  ROOKIE_OUT: <Rocket size={32} />,
+  MONTH_KING: <Crown size={32} />,
+  MASTER: <Medal size={32} />,
 };
 
 export default function BadgeGallery() {
@@ -85,28 +26,28 @@ export default function BadgeGallery() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get<BadgeListEnvelope>('/badge/gallery');
+        const { data } = await api.get('/badge/gallery');
+        const list: ApiBadge[] = Array.isArray(data?.badgeList)
+          ? data.badgeList
+          : Array.isArray(data?.result?.badgeList)
+            ? data.result.badgeList
+            : [];
 
-        let list: ApiBadge[] = [];
-        if (Array.isArray(data)) list = data;
-        else if (hasResult(data) && Array.isArray(data.result?.badgeList))
-          list = data.result.badgeList ?? [];
-        else if (hasData(data) && Array.isArray(data.data))
-          list = data.data ?? [];
-        else if (hasContent(data) && Array.isArray(data.content))
-          list = data.content ?? [];
+        const ui: UIBadge[] = list.map((b) => ({
+          id: b.badge,
+          label: b.name,
+          icon: iconByBadge[b.badge] ?? <Star size={32} />,
+        }));
 
-        const ui = list.map(normalizeBadge);
         setBadges(ui);
       } catch (e: unknown) {
-        if (axios.isAxiosError(e)) {
-          setError(
-            (e.response?.data as { message?: string } | undefined)?.message ??
-              e.message,
-          );
-        } else {
-          setError(e instanceof Error ? e.message : '불러오기 실패');
-        }
+        const message =
+          e instanceof Error
+            ? e.message
+            : typeof e === 'string'
+              ? e
+              : '불러오기 실패';
+        setError(message);
       }
     })();
   }, []);
@@ -131,38 +72,20 @@ export default function BadgeGallery() {
 
         {badges && (
           <div className="grid grid-cols-3 gap-4">
-            {badges.map((badge) => {
-              const icon = iconByType[badge.iconType ?? 'star'];
-              const locked = badge.locked;
-              const gradient = badge.gradient ?? 'from-[#C86DD7] to-[#3023AE]';
-              const progress = Math.max(0, Math.min(100, badge.progress ?? 25));
-
-              return (
-                <div
-                  key={badge.id}
-                  className={cn(
-                    'flex h-[96px] flex-col items-center justify-center rounded-2xl p-4 shadow-sm',
-                    locked
-                      ? 'bg-gray-100 text-gray-400'
-                      : `bg-gradient-to-br ${gradient} text-white`,
-                  )}
-                >
-                  {icon}
-                  <p className="mt-1 text-center text-sm leading-tight">
-                    {badge.label}
-                  </p>
-
-                  {locked && (
-                    <div className="mt-2 h-1 w-full rounded-full bg-white/30">
-                      <div
-                        className="h-1 rounded-full bg-white/60"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {badges.map((b) => (
+              <div
+                key={b.id}
+                className={cn(
+                  'flex h-[96px] flex-col items-center justify-center rounded-2xl p-4 shadow-sm',
+                  'bg-gradient-to-br from-[#C86DD7] to-[#3023AE] text-white',
+                )}
+              >
+                {b.icon}
+                <p className="mt-1 text-center text-sm leading-tight">
+                  {b.label}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </section>
