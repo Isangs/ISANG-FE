@@ -5,9 +5,11 @@ import CompletionProofSelector from './CompletionProofSelector';
 import CompletionFooter from './CompletionFooter';
 import Image from 'next/image';
 import { FeedType } from '@/shared/store/post';
+import type { CompletionSubmitPayload } from './CompletionModal';
 
 type CompletionProofFormProps = {
-  onSubmit: (feedType: FeedType) => void;
+  // before: onSubmit: (feedType: FeedType) => void;
+  onSubmit: (data: CompletionSubmitPayload) => void;
 };
 
 export default function CompletionProofForm({
@@ -15,7 +17,7 @@ export default function CompletionProofForm({
 }: CompletionProofFormProps) {
   const [selectedType, setSelectedType] = useState<FeedType>(FeedType.TEXT);
   const [textValue, setTextValue] = useState('');
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null); // <- 미리보기(Blob URL)
 
   const isValid =
     (selectedType === FeedType.TEXT && textValue.trim() !== '') ||
@@ -30,7 +32,12 @@ export default function CompletionProofForm({
   }
 
   const onClick = () => {
-    onSubmit(selectedType);
+    if (selectedType === FeedType.TEXT) {
+      onSubmit({ type: FeedType.TEXT, content: textValue.trim() });
+    } else {
+      // ⚠️ 현재는 미리보기 Blob URL. 실제 서버로 보낼 땐 업로드 후 받은 URL을 넣어야 함.
+      onSubmit({ type: FeedType.IMAGE, imageUrl: photoPreview ?? '' });
+    }
   };
 
   return (
@@ -72,7 +79,6 @@ export default function CompletionProofForm({
                   사진을 선택하세요...
                 </div>
               )}
-
               <input
                 id="photo-upload"
                 type="file"
@@ -84,6 +90,7 @@ export default function CompletionProofForm({
           )}
         </div>
       </div>
+
       <div className="mt-6">
         <CompletionFooter isActive={isValid} onClick={onClick} />
       </div>

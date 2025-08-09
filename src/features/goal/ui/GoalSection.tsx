@@ -8,8 +8,24 @@ import { AddGoalModal } from './AddGoalModal/AddGoalModal';
 import { AddGoalButton } from './AddGoalButton';
 import CompletionModal from '@/features/goal-complete/ui/CompletionModal/CompletionModal';
 import { RecordSettingsModal } from './RecordSettingsModal';
-import { FeedType, usePostStore } from '@/shared/store/post'; // ✅ Zustand store import
+import { FeedType, usePostStore } from '@/shared/store/post';
 import { Post } from '@/entities/post/model/post';
+import {
+  createGoal as apiCreateGoal,
+  deleteGoal as apiDeleteGoal,
+} from '@/shared/api/goals';
+import {
+  verifyCompletionText,
+  verifyCompletionImage,
+  updateRecordSettings,
+} from '@/shared/api/record';
+
+// CompletionModal이 넘겨줄 데이터 형태
+type CompletionSubmitPayload = {
+  type: FeedType; // 'TEXT' | 'IMAGE'
+  content?: string; // TEXT일 때
+  imageUrl?: string; // IMAGE일 때
+};
 
 export function GoalSection() {
   const [goals, setGoals] = useState([
@@ -40,14 +56,13 @@ export function GoalSection() {
   );
   const addPost = usePostStore((state) => state.addPost);
 
-  const handleAddGoal = (newGoal: { title: string; category: string }) => {
-    const newId = goals.length ? Math.max(...goals.map((g) => g.id)) + 1 : 1;
-    const newGoalItem = {
-      id: newId,
-      score: 0,
-      ...newGoal,
-    };
-    setGoals((prev) => [...prev, newGoalItem]);
+  // ✅ 서버 생성으로 교체
+  const handleAddGoal = async (newGoal: {
+    title: string;
+    category: string;
+  }) => {
+    const created = await apiCreateGoal(newGoal);
+    setGoals((prev) => [created, ...prev]);
   };
 
   const handleDeleteCategory = (categoryName: string) => {
@@ -56,8 +71,15 @@ export function GoalSection() {
     if (selectedCategory === categoryName) setSelectedCategory('전체');
   };
 
-  const handleDeleteGoal = (id: number) => {
+  // ✅ 낙관적 삭제 + 실패 시 롤백
+  const handleDeleteGoal = async (id: number) => {
+    const backup = goals;
     setGoals((prev) => prev.filter((goal) => goal.id !== id));
+    try {
+      await apiDeleteGoal(id);
+    } catch {
+      setGoals(backup);
+    }
   };
 
   const handleCompleteGoal = (goalId: number) => {
@@ -65,28 +87,41 @@ export function GoalSection() {
     setIsCompletionOpen(true);
   };
 
-  const handleSubmitCompletion = (feedType: FeedType) => {
-    if (selectedGoalId !== null) {
-      setCompletedGoalIds((prev) =>
-        prev.includes(selectedGoalId) ? prev : [...prev, selectedGoalId],
-      );
+  // ✅ 텍스트/이미지 인증 API 호출 → 설정 모달로
+  const handleSubmitCompletion = async (data: CompletionSubmitPayload) => {
+    if (selectedGoalId == null) return;
+
+    if (data.type === FeedType.TEXT) {
+      await verifyCompletionText(selectedGoalId, data.content ?? '');
+    } else {
+      await verifyCompletionImage(selectedGoalId, data.imageUrl ?? '');
     }
-    setSelectedFeedType(feedType);
+
+    setSelectedFeedType(data.type);
+    setCompletedGoalIds((prev) =>
+      prev.includes(selectedGoalId) ? prev : [...prev, selectedGoalId],
+    );
+
     setIsCompletionOpen(false);
-    setSelectedGoalId(null);
-    setTimeout(() => {
-      setIsRecordSettingsOpen(true);
-    }, 300);
+    // ⚠️ 설정 모달에서 goalId를 써야 하므로 여기서는 selectedGoalId를 비우지 않음
+    setTimeout(() => setIsRecordSettingsOpen(true), 300);
   };
 
-  const handleRecordSettingsConfirm = (settings: {
+  // ✅ 기록 설정 PATCH + 공개면 피드 반영
+  const handleRecordSettingsConfirm = async (settings: {
     recordEnabled: boolean;
     isPrivate: boolean;
   }) => {
-    const goal = goals.find((g) => g.id === selectedGoalId);
-    if (!goal) return;
+    if (selectedGoalId == null) return;
 
-    if (settings.recordEnabled && !settings.isPrivate) {
+    await updateRecordSettings({
+      goalId: selectedGoalId,
+      recordEnabled: settings.recordEnabled,
+      isPrivate: settings.isPrivate,
+    });
+
+    const goal = goals.find((g) => g.id === selectedGoalId);
+    if (goal && settings.recordEnabled && !settings.isPrivate) {
       const newPost: Post = {
         id: crypto.randomUUID(),
         author: '김민수', // TODO: 로그인 유저 정보로 교체
@@ -94,16 +129,16 @@ export function GoalSection() {
         timeAgo: '방금 전',
         badge: goal.title,
         content: `🎯 ${goal.title} 목표를 완료했어요!`,
-        imageUrl: undefined,
+        imageUrl:
+          selectedFeedType === FeedType.IMAGE ? '이미지_URL_자리' : undefined, // 필요 시 연결
         likeCount: 0,
         commentCount: 0,
       };
-      console.log('🔥 newPost 생성됨', newPost);
       addPost(newPost, selectedFeedType);
     }
 
     setIsRecordSettingsOpen(false);
-    setSelectedGoalId(null);
+    setSelectedGoalId(null); // 여기서 비움
   };
 
   const filteredGoals =
@@ -146,6 +181,7 @@ export function GoalSection() {
       <CompletionModal
         isOpen={isCompletionOpen}
         onClose={() => setIsCompletionOpen(false)}
+        // ⬇️ (중요) onSubmit 시그니처: (payload: { type, content?, imageUrl? })
         onSubmit={handleSubmitCompletion}
       />
 
@@ -156,8 +192,8 @@ export function GoalSection() {
       {isModalOpen && (
         <AddGoalModal
           onClose={() => setIsModalOpen(false)}
-          onAdd={(goal) => {
-            handleAddGoal(goal);
+          onAdd={async (goal) => {
+            await handleAddGoal(goal);
             setIsModalOpen(false);
           }}
           onAddCategory={(category: { name: string; color: string }) => {
