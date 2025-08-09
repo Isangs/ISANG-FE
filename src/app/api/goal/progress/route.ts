@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { instance } from '@/lib/axios';
+import { serverInstance } from '@/lib/axios';
 import { cookies } from 'next/headers';
 
 export async function GET(req: Request) {
@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   const accessToken = cookieStore.get('accessToken')?.value;
 
   try {
-    const { data } = await instance.get('/goal/progress', {
+    const { data } = await serverInstance.get('/goal/progress', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
