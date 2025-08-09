@@ -38,15 +38,17 @@ export function ProfileCard() {
           {/* 이미지 */}
           <div className="relative aspect-[1/1] h-20 w-20 rounded-full bg-gradient-to-tr from-purple-400 to-pink-400 p-1">
             <div className="h-full w-full overflow-hidden rounded-full bg-white">
-              {user && (
+              {user?.profileUrl ? (
                 <Image
-                  priority={true}
+                  priority
                   src={user.profileUrl}
                   alt="프로필 이미지"
                   width={80}
                   height={80}
                   className="h-full w-full object-cover"
                 />
+              ) : (
+                <div className="h-full w-full rounded-full bg-gray-200" />
               )}
             </div>
           </div>
