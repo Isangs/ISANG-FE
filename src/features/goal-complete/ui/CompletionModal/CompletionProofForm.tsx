@@ -79,7 +79,7 @@ export default function CompletionProofForm({
                 />
               ) : (
                 <div className="text-sm text-white/60">
-                  사진을 선택하세요...
+                  사진을 선택하세요 (너무 큰 이미지는 업로드가 제한됩니다)
                 </div>
               )}
               <input
