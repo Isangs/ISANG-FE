@@ -71,7 +71,7 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
           ? ''
           : (previewUrl ?? form.profileUrl ?? '');
 
-      await updateUser(form, undefined, profileUrlToSend);
+      await updateUser(form, profileUrlToSend);
       const nextProfileUrl =
         previewUrl && previewUrl.startsWith('blob:')
           ? ''
