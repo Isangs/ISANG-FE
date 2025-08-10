@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED = ['/mypage', '/settings'];
+const PROTECTED = ['/mypage', '/settings', '/feed', '/home'];
 
 export function middleware(req: NextRequest) {
   if (PROTECTED.some((p) => req.nextUrl.pathname.startsWith(p))) {

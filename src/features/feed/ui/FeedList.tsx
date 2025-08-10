@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import PostCard from '@/entities/user/ui/PostCard';
 import type { Post } from '@/entities/post/model/post';
-import { fetchFeeds, searchFeeds } from '@/shared/api/feed';
+import { fetchFeeds, reactFeed, searchFeeds } from '@/shared/api/feed';
 
 type Props = { keyword?: string };
 
@@ -15,6 +15,23 @@ function getErrorMessage(e: unknown): string {
     if (typeof maybeMsg === 'string') return maybeMsg;
   }
   return '불러오기 실패';
+}
+
+export interface FeedProps {
+  id: number;
+  taskMessage: string;
+  content: string;
+  profileImageUrl: string | null;
+  hearts: number;
+  isPublic: boolean;
+  isPostLiked: boolean;
+  isPostHearted: boolean;
+  likes: number;
+  createdAt: string;
+  user: {
+    profileImageUrl: string;
+    name: string;
+  };
 }
 
 export default function FeedList({ keyword = '' }: Props) {
@@ -46,6 +63,18 @@ export default function FeedList({ keyword = '' }: Props) {
       alive = false;
     };
   }, [q, isSearching]);
+
+  const handleLikeClick = async (feedId: number) => {
+    await reactFeed(feedId, 'LIKE');
+    const list = await fetchFeeds();
+    setItems(list);
+  };
+
+  const handleHeartClick = async (feedId: number) => {
+    await reactFeed(feedId, 'HEART');
+    const list = await fetchFeeds();
+    setItems(list);
+  };
 
   if (err) {
     return (
@@ -88,7 +117,14 @@ export default function FeedList({ keyword = '' }: Props) {
           <p className="text-sm">다른 키워드로 검색해보세요</p>
         </div>
       ) : (
-        items.map((post, i) => <PostCard key={i} post={post} />)
+        items.map((post, i) => (
+          <PostCard
+            key={i}
+            post={post}
+            handleHeartClick={handleHeartClick}
+            handleLikeClick={handleLikeClick}
+          />
+        ))
       )}
     </div>
   );

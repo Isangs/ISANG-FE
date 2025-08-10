@@ -12,17 +12,22 @@ type ApiUser = {
   profileImageUrl?: string;
 };
 
-type ApiFeed = {
-  id?: number;
-  taskMessage?: string;
-  content?: string;
-  profileImageUrl?: string;
-  hearts?: number;
-  likes?: number;
-  createdAt?: string;
-  images?: string[];
-  user?: ApiUser;
-};
+export interface ApiFeed {
+  id: number;
+  taskMessage: string;
+  content: string;
+  profileImageUrl: string | null;
+  hearts: number;
+  isPublic: boolean;
+  isPostLiked: boolean;
+  isPostHearted: boolean;
+  likes: number;
+  createdAt: string;
+  user: {
+    profileImageUrl: string;
+    name: string;
+  };
+}
 
 type FeedEnvelope =
   | { result?: { feeds?: ApiFeed[] } }
@@ -55,49 +60,23 @@ function pickList(d: FeedEnvelope): ApiFeed[] {
   return [];
 }
 
-/** API → UI Post 매핑 */
-export function toPost(x: ApiFeed): Post {
-  const created = x.createdAt ? dayjs(x.createdAt) : null;
-
-  // 프로필 이미지: user.profileImageUrl 우선, 없으면 루트 profileImageUrl, 마지막으로 기본값
-  const profileUrl =
-    x.user?.profileImageUrl ?? x.profileImageUrl ?? '/img/kakao.png';
-
-  return {
-    id: String(x.id ?? ''),
-    profileUrl: String(profileUrl),
-    author: String(x.user?.name ?? ''),
-    timeAgo: created ? created.fromNow() : '',
-    badge: String(x.taskMessage ?? ''),
-    content: x.content ?? '',
-    imageUrl:
-      Array.isArray(x.images) && x.images.length > 0
-        ? String(x.images[0])
-        : undefined,
-    likeCount: Number.isFinite(Number(x.hearts)) ? Number(x.hearts) : 0,
-    commentCount: Number.isFinite(Number(x.likes)) ? Number(x.likes) : 0,
-  };
-}
-
 /** 피드 목록 */
 export async function fetchFeeds(): Promise<Post[]> {
-  const { data } = await api.get<FeedEnvelope>('/feed');
-  return pickList(data).map(toPost);
+  const { data } = await api.get('/feed');
+  return data.feeds;
 }
 
 /** 피드 검색 */
 export async function searchFeeds(q: string): Promise<Post[]> {
-  const { data } = await api.get<FeedEnvelope>('/feed/search', {
+  const { data } = await api.get('/feed/search', {
     params: { q },
   });
-  return pickList(data).map(toPost);
+  return data.feeds;
 }
 
 /** 리액션 (좋아요 등) */
-export async function reactFeed(
-  id: number | string,
-  body: Record<string, unknown> = {},
-) {
-  const { data } = await api.patch(`/feed/${id}/reaction`, body);
-  return data as unknown;
+export async function reactFeed(id: number | string, type: 'LIKE' | 'HEART') {
+  await api.patch(`/feed/${id}/reaction`, {
+    reactionType: type,
+  });
 }
