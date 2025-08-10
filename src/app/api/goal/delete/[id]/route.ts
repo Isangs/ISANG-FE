@@ -5,7 +5,7 @@ import { AxiosError } from 'axios';
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const token = (await cookies()).get('accessToken')?.value;
   if (!token) {
@@ -15,11 +15,12 @@ export async function DELETE(
     );
   }
 
+  const { id } = await params;
+
   try {
-    const { data, status } = await serverInstance.delete(
-      `/goal/delete/${params.id}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    const { data, status } = await serverInstance.delete(`/goal/delete/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return NextResponse.json(data ?? {}, { status });
   } catch (error) {
     if (error instanceof AxiosError) {
