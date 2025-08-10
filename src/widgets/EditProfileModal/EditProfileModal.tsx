@@ -21,6 +21,7 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
 
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 10);
@@ -34,6 +35,7 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
   }, [previewUrl]);
 
   const handleClose = () => {
+    if (saving) return;
     setIsVisible(false);
     setTimeout(() => {
       setIsMounted(false);
@@ -62,10 +64,27 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
   };
 
   const handleSubmit = async () => {
-    await updateUser(form);
+    try {
+      setSaving(true);
+      const profileUrlToSend =
+        previewUrl && previewUrl.startsWith('blob:')
+          ? ''
+          : (previewUrl ?? form.profileUrl ?? '');
 
-    onSave(form);
-    onClose();
+      await updateUser(form, undefined, profileUrlToSend);
+      const nextProfileUrl =
+        previewUrl && previewUrl.startsWith('blob:')
+          ? ''
+          : (previewUrl ?? form.profileUrl ?? '');
+
+      onSave({ ...form, profileUrl: nextProfileUrl });
+      onClose();
+    } catch (e) {
+      console.error(e);
+      alert('프로필 저장에 실패했어요. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!isMounted) return null;
@@ -86,7 +105,7 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
         {/* 헤더 */}
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">프로필</h2>
-          <button onClick={handleClose}>
+          <button onClick={handleClose} disabled={saving}>
             <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
           </button>
         </div>
@@ -117,6 +136,7 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
               accept="image/*"
               hidden
               onChange={handleImageChange}
+              disabled={saving}
             />
             <p className="mt-2 text-center text-sm font-medium text-purple-600">
               사진 변경
@@ -132,8 +152,9 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
             </label>
             <input
               name="name"
-              value={form.name}
+              value={form.name ?? ''}
               onChange={handleChange}
+              disabled={saving}
               className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
@@ -143,8 +164,9 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
             </label>
             <input
               name="nickname"
-              value={form.nickname}
+              value={form.nickname ?? ''}
               onChange={handleChange}
+              disabled={saving}
               className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
@@ -154,8 +176,9 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
             </label>
             <input
               name="email"
-              value={form.email}
+              value={form.email ?? ''}
               onChange={handleChange}
+              disabled={saving}
               className="w-full rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
@@ -165,9 +188,10 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
             </label>
             <textarea
               name="bio"
-              value={form.bio}
+              value={form.bio ?? ''}
               onChange={handleChange}
               rows={3}
+              disabled={saving}
               className="w-full resize-none rounded-xl border bg-white/70 p-3 text-sm text-black placeholder-gray-400 backdrop-blur-sm"
             />
           </div>
@@ -177,9 +201,10 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
         <div className="mt-6">
           <button
             onClick={handleSubmit}
-            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:brightness-110 active:scale-95"
+            disabled={saving}
+            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:brightness-110 active:scale-95 disabled:opacity-60"
           >
-            저장하기
+            {saving ? '저장 중…' : '저장하기'}
           </button>
         </div>
       </div>

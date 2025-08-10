@@ -1,19 +1,27 @@
-import { User } from '@/shared/types/user';
+import api from '@/shared/api/axios';
+import type { User } from '@/shared/types/user';
+
+type UpdateBody = {
+  name: string;
+  nickName: string;
+  introduce?: string;
+  profileUrl: string;
+  email?: string;
+};
 
 export async function updateUser(
   form: User,
-  accessToken?: string,
+  _accessToken?: string,
   profileImageUrl?: string,
 ) {
-  console.log('⚠️ [임시 요청]', {
-    name: form.name,
-    nick_name: form.nickname,
-    introduce: form.bio,
-    profile_url: profileImageUrl ?? '/img/kakao.png',
-    email: form.email,
-    token: accessToken,
-  });
+  const body = {
+    name: form.name ?? '',
+    nickName: form.nickname ?? '',
+    introduce: form.bio ?? '',
+    profileUrl: profileImageUrl ?? form.profileUrl ?? '',
+    email: form.email ?? '',
+  };
 
-  // TODO: 나중에 PATCH 요청 연결할 것
-  return { success: true };
+  const { data } = await api.patch('/user/update', body);
+  return data;
 }
