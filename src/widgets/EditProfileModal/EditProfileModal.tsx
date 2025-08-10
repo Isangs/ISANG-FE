@@ -14,23 +14,31 @@ type Props = {
 
 export function EditProfileModal({ user, onClose, onSave }: Props) {
   const [form, setForm] = useState(user);
-  const [previewUrl, setPreviewUrl] = useState(user.profileUrl); // 초기 이미지
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    user.profileUrl && user.profileUrl.trim() !== '' ? user.profileUrl : null,
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 10); // show trigger
+    const timer = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
       setIsMounted(false);
       onClose();
-    }, 300); // match transition time
+    }, 300);
   };
 
   const handleChange = (
@@ -40,26 +48,21 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0] ?? null;
+    setImageFile(file);
+
+    if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+
     if (file) {
-      setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
     }
   };
 
   const handleSubmit = async () => {
-    // 1. 유저 정보 업데이트
     await updateUser(form);
-
-    // 2. 프로필 이미지도 서버에 따로 업로드 요청 보내야 함 (multipart/form-data)
-    // if (imageFile) {
-    //   const formData = new FormData();
-    //   formData.append('image', imageFile);
-    //   await fetch('/api/user/upload-image', {
-    //     method: 'POST',
-    //     body: formData,
-    //   });
-    // }
 
     onSave(form);
     onClose();
@@ -93,13 +96,20 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
           <label className="cursor-pointer">
             <div className="rounded-full bg-gradient-to-r from-purple-400 to-pink-400 p-1">
               <div className="h-[88px] w-[88px] overflow-hidden rounded-full bg-white">
-                <Image
-                  src={previewUrl}
-                  alt="프로필"
-                  width={88}
-                  height={88}
-                  className="h-full w-full object-cover"
-                />
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl}
+                    alt="프로필"
+                    width={88}
+                    height={88}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-100 text-xs text-gray-400">
+                    사진 없음
+                  </div>
+                )}
               </div>
             </div>
             <input
