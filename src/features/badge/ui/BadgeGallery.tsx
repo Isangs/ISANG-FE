@@ -11,10 +11,10 @@ type UIBadge = { id: string; label: string; icon: JSX.Element };
 
 const iconByBadge: Record<string, JSX.Element> = {
   THREE_DAY: <Flame size={32} />,
-  HUNDRED_SCORE: <Trophy size={32} />,
+  OVER_PERFECT_SCORES: <Trophy size={32} />,
   PERFECT_WEEK: <Star size={32} />,
-  ROOKIE_OUT: <Rocket size={32} />,
-  MONTH_KING: <Crown size={32} />,
+  BEGINNER_ESCAPE: <Rocket size={32} />,
+  MONTHLY_KING: <Crown size={32} />,
   MASTER: <Medal size={32} />,
 };
 
