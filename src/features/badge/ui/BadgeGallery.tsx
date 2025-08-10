@@ -26,12 +26,8 @@ export default function BadgeGallery() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/badge/gallery');
-        const list: ApiBadge[] = Array.isArray(data?.badgeList)
-          ? data.badgeList
-          : Array.isArray(data?.result?.badgeList)
-            ? data.result.badgeList
-            : [];
+        const { data } = await api.get('/badge/detail');
+        const list: ApiBadge[] = data.result.badgeList;
 
         const ui: UIBadge[] = list.map((b) => ({
           id: b.badge,
