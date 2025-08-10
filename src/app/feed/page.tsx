@@ -12,7 +12,6 @@ export default function FeedPage() {
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF]">
-      {/* 고정 헤더 */}
       <div className="fixed top-0 z-10 flex w-full justify-center bg-white">
         <div className="w-full max-w-[640px]">
           <FeedHeader onSearchClick={() => setSearchVisible(true)} />
@@ -31,7 +30,7 @@ export default function FeedPage() {
 
       <div className="mt-[72px] flex w-full flex-1 justify-center overflow-y-auto px-4 pb-4">
         <div className="w-full max-w-[640px]">
-          <FeedList />
+          <FeedList keyword={searchKeyword} />
         </div>
         <BottomNav />
       </div>
