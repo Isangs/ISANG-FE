@@ -43,43 +43,41 @@ const num = (v: unknown, f = 0) => (Number.isFinite(Number(v)) ? Number(v) : f);
 function iconByCode(code?: string) {
   switch (code) {
     case 'THREE_DAY':
-    case 'STREAK_3':
       return <Flame size={20} />;
-    case 'HUNDRED_SCORE':
-    case 'SCORE_100':
+    case 'OVER_PERFECT_SCORES':
       return <Trophy size={20} />;
     case 'PERFECT_WEEK':
       return <Star size={20} />;
-    case 'LEVEL_10':
-    case 'ROOKIE_OUT':
+    case 'BEGINNER_ESCAPE':
       return <Rocket size={20} />;
-    case 'MONTH_KING':
+    case 'MONTHLY_KING':
       return <Crown size={20} />;
+    case 'MASTER':
+      return <MapPin size={20} />;
     default:
       return <MapPin size={20} />;
   }
 }
+
 function gradientByCode(code?: string): { from: string; to: string } {
   switch (code) {
     case 'THREE_DAY':
-    case 'STREAK_3':
       return { from: '#FF512F', to: '#DD2476' };
-    case 'HUNDRED_SCORE':
-    case 'SCORE_100':
+    case 'OVER_PERFECT_SCORES':
       return { from: '#FFD200', to: '#F7971E' };
     case 'PERFECT_WEEK':
       return { from: '#DA22FF', to: '#9733EE' };
-    case 'LEVEL_10':
-    case 'ROOKIE_OUT':
+    case 'BEGINNER_ESCAPE':
       return { from: '#36D1DC', to: '#5B86E5' };
-    case 'MONTH_KING':
+    case 'MONTHLY_KING':
       return { from: '#C6FFDD', to: '#FBD786' };
+    case 'MASTER':
+      return { from: '#FF5F6D', to: '#FFC371' };
     default:
       return { from: '#C86DD7', to: '#3023AE' };
   }
 }
 
-/* ===== 컴포넌트 ===== */
 export function BadgeDetailModal({ isOpen, onClose }: BadgeDetailModalProps) {
   const [visible, setVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -88,7 +86,6 @@ export function BadgeDetailModal({ isOpen, onClose }: BadgeDetailModalProps) {
   const [progressing, setProgressing] = useState<ApiBadge[]>([]);
   const [err, setErr] = useState<string | null>(null);
 
-  // open/close 애니메이션
   useEffect(() => {
     if (isOpen) {
       setIsMounted(true);
@@ -101,7 +98,6 @@ export function BadgeDetailModal({ isOpen, onClose }: BadgeDetailModalProps) {
     }
   }, [isOpen]);
 
-  // 열릴 때만 데이터 로드
   useEffect(() => {
     if (!isOpen) return;
     (async () => {
