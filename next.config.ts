@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: 'k.kakaocdn.net',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'isang-bucket.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/**',
+      },
     ],
   },
 };

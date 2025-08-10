@@ -6,6 +6,7 @@ import CompletionFooter from './CompletionFooter';
 import Image from 'next/image';
 import { FeedType } from '@/shared/store/post';
 import type { CompletionSubmitPayload } from './CompletionModal';
+import api from '@/shared/api/axios';
 
 type CompletionProofFormProps = {
   // before: onSubmit: (feedType: FeedType) => void;
@@ -23,11 +24,14 @@ export default function CompletionProofForm({
     (selectedType === FeedType.TEXT && textValue.trim() !== '') ||
     (selectedType === FeedType.IMAGE && photoPreview !== null);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setPhotoPreview(previewUrl);
+      const { data } = await api.postForm(`/s3`, {
+        file,
+      });
+
+      setPhotoPreview(data.result);
     }
   }
 
@@ -35,7 +39,6 @@ export default function CompletionProofForm({
     if (selectedType === FeedType.TEXT) {
       onSubmit({ type: FeedType.TEXT, content: textValue.trim() });
     } else {
-      // ⚠️ 현재는 미리보기 Blob URL. 실제 서버로 보낼 땐 업로드 후 받은 URL을 넣어야 함.
       onSubmit({ type: FeedType.IMAGE, imageUrl: photoPreview ?? '' });
     }
   };

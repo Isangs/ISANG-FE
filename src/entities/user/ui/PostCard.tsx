@@ -108,9 +108,6 @@ export default function PostCard({
             <span className="text-sm font-medium">{post.likes}</span>
           </button>
         </div>
-        <button className="text-gray-500">
-          <Share2 className="h-4 w-4" />
-        </button>
       </div>
     </div>
   );
