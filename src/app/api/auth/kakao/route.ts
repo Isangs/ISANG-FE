@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { serverInstance } from '@/lib/axios';
+import { AxiosError } from 'axios';
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -9,6 +10,7 @@ export async function GET(req: Request) {
     if (!code) return NextResponse.redirect(new URL('/login', url));
 
     const { data } = await serverInstance.post(`/auth/oauth/login/${code}`);
+
     const accessToken = data.result.accessToken;
 
     const res = NextResponse.redirect(new URL(redirect, url));
@@ -25,6 +27,10 @@ export async function GET(req: Request) {
 
     return res;
   } catch (e) {
+    if (e instanceof AxiosError) {
+      console.log(e.response?.data);
+    }
+
     console.log(e);
 
     // const url = new URL(req.url);

@@ -12,14 +12,21 @@ import { FeedType } from '@/shared/store/post';
 import {
   deleteGoal as apiDeleteGoal,
   fetchGoalList,
-  CreateGoalInput, createGoal, deleteGoal,
+  CreateGoalInput,
+  createGoal,
+  deleteGoal,
 } from '@/shared/api/goals';
 import {
   verifyCompletionText,
   verifyCompletionImage,
   updateRecordSettings,
 } from '@/shared/api/record';
-import { createTask, CreateTaskInput, fetchTaskList } from '@/shared/api/tasks';
+import {
+  createTask,
+  CreateTaskInput,
+  deleteTask,
+  fetchTaskList,
+} from '@/shared/api/tasks';
 
 type CompletionSubmitPayload = {
   type: FeedType;
@@ -36,7 +43,7 @@ export interface TaskProps {
   goal: {
     goalId: number;
     name: string;
-  }
+  };
 }
 
 export interface GoalProps {
@@ -52,7 +59,7 @@ export function GoalSection() {
   const [tasks, setTasks] = useState<TaskProps[]>();
   const [goals, setGoals] = useState<GoalProps[]>();
 
-  const [selectedTask, setSelectedTask] = useState<TaskProps>()
+  const [selectedTask, setSelectedTask] = useState<TaskProps>();
   const [selectedCategory, setSelectedCategory] = useState<GoalProps>();
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,23 +71,23 @@ export function GoalSection() {
   );
 
   const refreshGoalList = useCallback(async () => {
-    const goalList = await fetchGoalList()
-    setGoals(goalList)
-  }, [])
+    const goalList = await fetchGoalList();
+    setGoals(goalList);
+  }, []);
 
   const refreshTaskList = useCallback(async () => {
     const list = await fetchTaskList();
     setTasks(list ?? []);
-  }, [])
+  }, []);
 
   // 최초 로드: 목표 목록
   useEffect(() => {
     const refreshPage = async () => {
-      await refreshGoalList()
-      await refreshTaskList()
-    }
+      await refreshGoalList();
+      await refreshTaskList();
+    };
 
-    refreshPage()
+    refreshPage();
   }, []);
 
   // 목표 생성
@@ -94,35 +101,35 @@ export function GoalSection() {
   };
 
   const handleDeleteCategory = async (goal: GoalProps) => {
-    await deleteGoal(goal.goalId)
-    await refreshGoalList()
+    await deleteGoal(goal.goalId);
+    await refreshGoalList();
     if (selectedCategory === goal) setSelectedCategory(undefined);
   };
 
   const handleDeleteTask = async (id: number) => {
-    const backup = goals;
-    setTasks((prev) => prev?.filter((g) => g.taskId !== id));
-    try {
-      await apiDeleteGoal(id);
-    } catch (err: unknown) {
-      setGoals(backup);
-      alert(getErrorMessage(err, '목표 삭제에 실패했어요.'));
-    }
+    await deleteTask(id);
+    await refreshTaskList();
   };
 
   // 인증 제출
   const handleSubmitCompletion = async (data: CompletionSubmitPayload) => {
     try {
       if (data.type === FeedType.TEXT) {
-        await verifyCompletionText(selectedTask?.taskId ?? 0, data.content ?? '');
+        await verifyCompletionText(
+          selectedTask?.taskId ?? 0,
+          data.content ?? '',
+        );
       } else {
-        await verifyCompletionImage(selectedTask?.taskId ?? 0, data.imageUrl ?? '');
+        await verifyCompletionImage(
+          selectedTask?.taskId ?? 0,
+          data.imageUrl ?? '',
+        );
       }
 
       setSelectedFeedType(data.type);
       setIsCompletionOpen(false);
 
-      await refreshTaskList()
+      await refreshTaskList();
     } catch (err: unknown) {
       alert(getErrorMessage(err, '완료 인증에 실패했어요.'));
     }
@@ -159,41 +166,41 @@ export function GoalSection() {
           isDeleteMode={isDeleteMode}
           onToggleDeleteMode={() => setIsDeleteMode((prev) => !prev)}
         />
-        {
-          goals && <GoalCategoryTabs
+        {goals && (
+          <GoalCategoryTabs
             categories={goals}
             isDeleteMode={isDeleteMode}
             selected={selectedCategory}
             onSelect={setSelectedCategory}
             onDelete={handleDeleteCategory}
           />
-        }
+        )}
       </div>
 
+      {/* 목표 리스트 */}
+      <div className="w-full flex-1 overflow-y-auto bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF]">
+        <div className="flex flex-col items-center gap-4 pt-4 pb-32">
+          {filteredTasks &&
+            filteredTasks.map((task) => (
+              <TaskCard
+                key={task.taskId}
+                task={task}
+                isDeleteMode={isDeleteMode}
+                onDelete={handleDeleteTask}
+                onOpenModal={() => {
+                  setIsRecordSettingsOpen(true);
+                  setSelectedTask(task);
+                }}
+              />
+            ))}
+        </div>
+      </div>
 
-          {/* 목표 리스트 */}
-          <div className="w-full flex-1 overflow-y-auto bg-gradient-to-b from-[#FAF5FF] via-[#EFF6FF] to-[#E0E7FF]">
-            <div className="flex flex-col items-center gap-4 pt-4 pb-32">
-              { filteredTasks && filteredTasks.map((task) => (
-                <TaskCard
-                  key={task.taskId}
-                  task={task}
-                  isDeleteMode={isDeleteMode}
-                  onDelete={handleDeleteTask}
-                  onOpenModal={() => {
-                    setIsRecordSettingsOpen(true)
-                    setSelectedTask(task)
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          <CompletionModal
-            isOpen={isCompletionOpen}
-            onClose={() => setIsCompletionOpen(false)}
-            onSubmit={handleSubmitCompletion}
-          />
+      <CompletionModal
+        isOpen={isCompletionOpen}
+        onClose={() => setIsCompletionOpen(false)}
+        onSubmit={handleSubmitCompletion}
+      />
 
       {!isCompletionOpen && (
         <AddGoalButton onClick={() => setIsModalOpen(true)} />
@@ -206,11 +213,11 @@ export function GoalSection() {
           onAdd={async (goal: CreateTaskInput) => {
             await handleAddTask(goal);
             setIsModalOpen(false);
-            await refreshTaskList()
+            await refreshTaskList();
           }}
           onAddCategory={async (category: CreateGoalInput) => {
             await createGoal(category);
-            await refreshGoalList()
+            await refreshGoalList();
           }}
         />
       )}

@@ -49,5 +49,5 @@ export async function fetchTasksByGoal(goalId: number): Promise<Task[]> {
 }
 
 export async function deleteTask(taskId: number) {
-  await clientInstance.delete(`task/delete/${taskId}`);
+  await clientInstance.delete(`/task/delete/${taskId}`);
 }
