@@ -8,7 +8,7 @@ import { Pencil, Crown, Coins } from 'lucide-react';
 import { EditProfileModal } from '@/widgets/EditProfileModal/EditProfileModal';
 import { User } from '@/shared/types/user';
 
-import axios from 'axios';
+import api from '@/shared/api/axios';
 
 export function ProfileCard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +16,7 @@ export function ProfileCard() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data } = await axios.get('/api/user/detail');
+      const { data } = await api.get('/user/detail');
       setUser({
         name: data.name,
         nickname: data.nickName,

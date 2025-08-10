@@ -29,10 +29,10 @@ function unwrapError(e: unknown): Result<unknown> {
   };
 }
 
-export async function GET_UPSTREAM<T = unknown>(
+export async function GET_UPSTREAM(
   path: string,
   params?: Query,
-): Promise<Result<T>> {
+) {
   try {
     const { data, status } = await serverInstance.get(`${path}`, {
       headers: await auth(),
@@ -40,33 +40,33 @@ export async function GET_UPSTREAM<T = unknown>(
     });
     return { status, data: data.result };
   } catch (e: unknown) {
-    return unwrapError(e) as Result<T>;
+    return unwrapError(e);
   }
 }
 
-export async function PATCH_UPSTREAM<T = unknown>(
+export async function PATCH_UPSTREAM(
   path: string,
   body?: unknown,
-): Promise<Result<T>> {
+) {
   try {
     const { data, status } = await serverInstance.patch(`${path}`, body, {
       headers: await auth(),
     });
     return { status, data: data.result };
   } catch (e: unknown) {
-    return unwrapError(e) as Result<T>;
+    return unwrapError(e);
   }
 }
 
-export async function DELETE_UPSTREAM<T = unknown>(
+export async function DELETE_UPSTREAM(
   path: string,
-): Promise<Result<T>> {
+) {
   try {
     const { data, status } = await serverInstance.delete(`${path}`, {
       headers: await auth(),
     });
     return { status, data: data.result };
   } catch (e: unknown) {
-    return unwrapError(e) as Result<T>;
+    return unwrapError(e);
   }
 }
