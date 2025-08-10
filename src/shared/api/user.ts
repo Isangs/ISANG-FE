@@ -9,11 +9,7 @@ type UpdateBody = {
   email?: string;
 };
 
-export async function updateUser(
-  form: User,
-  _accessToken?: string,
-  profileImageUrl?: string,
-) {
+export async function updateUser(form: User, profileImageUrl?: string) {
   const body = {
     name: form.name ?? '',
     nickName: form.nickname ?? '',
