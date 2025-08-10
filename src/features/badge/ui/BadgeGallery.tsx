@@ -1,49 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, JSX } from 'react';
+import api from '@/shared/api/axios';
 import { Flame, Trophy, Star, Rocket, Crown, Medal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BadgeDetailModal } from './BadgeDetailModal';
 
-const badges = [
-  {
-    icon: <Flame size={32} />,
-    label: '3일 연속',
-    gradient: 'from-[#FF5F6D] to-[#FFC371]',
-    locked: false,
-  },
-  {
-    icon: <Trophy size={32} />,
-    label: '100점 돌파',
-    gradient: 'from-[#FDC830] to-[#F37335]',
-    locked: false,
-  },
-  {
-    icon: <Star size={32} />,
-    label: '완벽한 주',
-    gradient: 'from-[#C86DD7] to-[#3023AE]',
-    locked: false,
-  },
-  {
-    icon: <Rocket size={32} />,
-    label: '초보 탈출',
-    gradient: 'from-[#36D1DC] to-[#5B86E5]',
-    locked: false,
-  },
-  {
-    icon: <Crown size={32} />,
-    label: '월간 왕',
-    locked: true,
-  },
-  {
-    icon: <Medal size={32} />,
-    label: '마스터',
-    locked: true,
-  },
-];
+type ApiBadge = { badge: string; name: string };
+type UIBadge = { id: string; label: string; icon: JSX.Element };
+
+const iconByBadge: Record<string, JSX.Element> = {
+  THREE_DAY: <Flame size={32} />,
+  HUNDRED_SCORE: <Trophy size={32} />,
+  PERFECT_WEEK: <Star size={32} />,
+  ROOKIE_OUT: <Rocket size={32} />,
+  MONTH_KING: <Crown size={32} />,
+  MASTER: <Medal size={32} />,
+};
 
 export default function BadgeGallery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [badges, setBadges] = useState<UIBadge[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get('/badge/gallery');
+        const list: ApiBadge[] = Array.isArray(data?.badgeList)
+          ? data.badgeList
+          : Array.isArray(data?.result?.badgeList)
+            ? data.result.badgeList
+            : [];
+
+        const ui: UIBadge[] = list.map((b) => ({
+          id: b.badge,
+          label: b.name,
+          icon: iconByBadge[b.badge] ?? <Star size={32} />,
+        }));
+
+        setBadges(ui);
+      } catch (e: unknown) {
+        const message =
+          e instanceof Error
+            ? e.message
+            : typeof e === 'string'
+              ? e
+              : '불러오기 실패';
+        setError(message);
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -58,30 +65,29 @@ export default function BadgeGallery() {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {badges.map((badge, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                'flex h-[96px] flex-col items-center justify-center rounded-2xl p-4 shadow-sm',
-                badge.locked
-                  ? 'bg-gray-100 text-gray-400'
-                  : `bg-gradient-to-br ${badge.gradient} text-white`,
-              )}
-            >
-              {badge.icon}
-              <p className="mt-1 text-center text-sm leading-tight">
-                {badge.label}
-              </p>
+        {error && <div className="text-sm text-red-600">에러: {error}</div>}
+        {!badges && !error && (
+          <div className="text-sm text-gray-500">로딩중…</div>
+        )}
 
-              {badge.locked && (
-                <div className="mt-2 h-1 w-full rounded-full bg-white/30">
-                  <div className="h-1 w-[25%] rounded-full bg-white/60" />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {badges && (
+          <div className="grid grid-cols-3 gap-4">
+            {badges.map((b) => (
+              <div
+                key={b.id}
+                className={cn(
+                  'flex h-[96px] flex-col items-center justify-center rounded-2xl p-4 shadow-sm',
+                  'bg-gradient-to-br from-[#C86DD7] to-[#3023AE] text-white',
+                )}
+              >
+                {b.icon}
+                <p className="mt-1 text-center text-sm leading-tight">
+                  {b.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <BadgeDetailModal
