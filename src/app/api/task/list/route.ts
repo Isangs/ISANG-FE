@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { serverInstance } from '@/lib/axios';
-import { AxiosError } from 'axios';
+import { Axios, AxiosError } from 'axios';
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -16,7 +16,7 @@ export async function GET() {
   }
 
   try {
-    const { data, status } = await serverInstance.get(`/goal/list`, {
+    const { data, status } = await serverInstance.get(`/task/list`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     console.log(

@@ -1,32 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AddCategoryModal } from './AddCategoryModal';
+import { AddCategoryModal } from '../../goal/ui/AddGoalModal/AddCategoryModal';
 import { cn } from '@/lib/utils';
+import { GoalProps, TaskProps } from '@/features/goal/ui/GoalSection';
+import { CreateGoalInput } from '@/shared/api/goals';
+import { CreateTaskInput } from '@/shared/api/tasks';
 
-type Category = {
-  name: string;
-  color: string;
-};
-
-export function AddGoalModal({
+export function AddTaskModal({
   onClose,
   onAdd,
   onAddCategory,
+  goals
 }: {
   onClose: () => void;
-  onAdd: (goal: { title: string; category: string }) => void;
-  onAddCategory: (category: { name: string; color: string }) => void;
+  onAdd: (goal: CreateTaskInput) => void;
+  onAddCategory: (category: CreateGoalInput) => void;
+  goals: GoalProps[];
 }) {
   const [title, setTitle] = useState('');
-  const [categories, setCategories] = useState<Category[]>([
-    { name: '운동', color: 'gray' },
-    { name: '학습', color: 'gray' },
-    { name: '업무', color: 'gray' },
-    { name: '건강', color: 'gray' },
-    { name: '개인성장', color: 'gray' },
-  ]);
-  const [selectedGoal, setSelectedGoal] = useState('');
+  const [selectedGoal, setSelectedGoal] = useState<GoalProps>();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [categoryInput, setCategoryInput] = useState('');
 
@@ -38,12 +31,11 @@ export function AddGoalModal({
     return () => clearTimeout(timer);
   }, []);
 
-  const handleAddCategorySubmit = (newCategory: Category) => {
-    setCategories((prev) => [...prev, newCategory]);
-    setSelectedGoal(newCategory.name);
+  const handleAddCategorySubmit = (newGoal: GoalProps) => {
+    setSelectedGoal(newGoal);
     setCategoryInput('');
     setIsAddingCategory(false);
-    onAddCategory?.(newCategory);
+    onAddCategory(newGoal);
   };
 
   const handleClose = () => {
@@ -105,23 +97,23 @@ export function AddGoalModal({
 
           {/* 카테고리 리스트 */}
           <div className="mb-4 flex flex-wrap gap-3">
-            {categories.map((category) => {
-              const isSelected = selectedGoal === category.name;
-              const isDefault = category.color === 'gray';
+            {goals.map((goal) => {
+              const isSelected = selectedGoal?.name === goal.name;
+              const isDefault = goal.colorCode === 'gray';
 
               return (
                 <button
-                  key={category.name}
-                  onClick={() => setSelectedGoal(category.name)}
+                  key={goal.name}
+                  onClick={() => setSelectedGoal(goal)}
                   className={cn(
                     'rounded-full px-4 py-2 text-sm transition',
                     isDefault
                       ? 'bg-gray-100 text-gray-700'
-                      : ['bg-gradient-to-r', category.color, 'text-white'],
+                      : ['bg-gradient-to-r', goal.colorCode, 'text-white'],
                     isSelected && 'ring-2 ring-black',
                   )}
                 >
-                  {category.name}
+                  {goal.name}
                 </button>
               );
             })}
@@ -133,8 +125,9 @@ export function AddGoalModal({
             onClick={() => {
               if (title && selectedGoal) {
                 onAdd({
-                  title,
-                  category: selectedGoal,
+                  goalId: selectedGoal.goalId,
+                  name: title,
+                  deadline: '2025-05-05T00:00'
                 });
               }
             }}

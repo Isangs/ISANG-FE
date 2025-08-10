@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { GoalProps } from '@/features/goal/ui/GoalSection';
 
 type AddCategoryModalProps = {
   value: string;
   onChange: (value: string) => void;
   onClose: () => void;
-  onSubmit: (category: { name: string; color: string }) => void;
+  onSubmit: (category: GoalProps) => void;
 };
 
 export function AddCategoryModal({
@@ -41,9 +42,9 @@ export function AddCategoryModal({
           onClick={() => {
             const newItem = {
               name: value.trim(),
-              color: selectedColor || '',
-            };
-            if (newItem.name && newItem.color) {
+              colorCode: selectedColor || '',
+            } as GoalProps;
+            if (newItem.name && newItem.colorCode) {
               onSubmit(newItem);
             }
           }}

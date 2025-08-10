@@ -1,12 +1,7 @@
 import 'server-only';
 import axios, { AxiosError } from 'axios';
 import { cookies } from 'next/headers';
-
-const API_URL =
-  process.env.API_URL ||
-  process.env.API_BASE ||
-  process.env.NEXT_PUBLIC_API_BASE ||
-  '';
+import { serverInstance } from '@/lib/axios';
 
 export type Result<T> = { status: number; data: T };
 
@@ -38,13 +33,12 @@ export async function GET_UPSTREAM<T = unknown>(
   path: string,
   params?: Query,
 ): Promise<Result<T>> {
-  if (!API_URL) throw new Error('API_URL missing');
   try {
-    const res = await axios.get<T>(`${API_URL}${path}`, {
+    const { data, status } = await serverInstance.get(`${path}`, {
       headers: await auth(),
       params,
     });
-    return { status: res.status, data: res.data };
+    return { status, data: data.result };
   } catch (e: unknown) {
     return unwrapError(e) as Result<T>;
   }
@@ -54,12 +48,11 @@ export async function PATCH_UPSTREAM<T = unknown>(
   path: string,
   body?: unknown,
 ): Promise<Result<T>> {
-  if (!API_URL) throw new Error('API_URL missing');
   try {
-    const res = await axios.patch<T>(`${API_URL}${path}`, body, {
+    const { data, status } = await serverInstance.patch(`${path}`, body, {
       headers: await auth(),
     });
-    return { status: res.status, data: res.data };
+    return { status, data: data.result };
   } catch (e: unknown) {
     return unwrapError(e) as Result<T>;
   }
@@ -68,12 +61,11 @@ export async function PATCH_UPSTREAM<T = unknown>(
 export async function DELETE_UPSTREAM<T = unknown>(
   path: string,
 ): Promise<Result<T>> {
-  if (!API_URL) throw new Error('API_URL missing');
   try {
-    const res = await axios.delete<T>(`${API_URL}${path}`, {
+    const { data, status } = await serverInstance.delete(`${path}`, {
       headers: await auth(),
     });
-    return { status: res.status, data: res.data };
+    return { status, data: data.result };
   } catch (e: unknown) {
     return unwrapError(e) as Result<T>;
   }

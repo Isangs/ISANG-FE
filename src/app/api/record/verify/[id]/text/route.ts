@@ -1,89 +1,31 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { serverInstance } from '@/lib/axios';
+import { AxiosError } from 'axios';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ??
-  process.env.API_BASE ??
-  process.env.API_URL ??
-  '';
-
-export async function POST(req: Request) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    if (!API_BASE) {
-      return NextResponse.json(
-        { isSuccess: false, code: 'COMMON500', message: 'API_BASE is empty' },
-        { status: 500 },
-      );
-    }
-
     const cookieStore = await cookies();
-    const token =
-      cookieStore.get('accessToken')?.value ??
-      cookieStore.get('access_token')?.value ??
-      cookieStore.get('Authorization')?.value ??
-      '';
+    const token = cookieStore.get('accessToken')?.value;
 
-    if (!token) {
-      return NextResponse.json(
-        { isSuccess: false, code: 'COMMON403', message: 'No token' },
-        { status: 401 },
-      );
-    }
+    const { body } = await req.json();
+    const { id } = await params;
 
-    const body = (await req.json()) as { taskId?: number; content?: string };
-    if (typeof body.taskId !== 'number' || !body.content) {
-      return NextResponse.json(
-        {
-          isSuccess: false,
-          code: 'COMMON400',
-          message: 'taskId and content required',
-        },
-        { status: 400 },
-      );
-    }
-
-    const res = await fetch(`${API_BASE}/record/verify/text`, {
-      method: 'POST', // 명세에 GET로 되어있어도 바디가 있으면 보통 POST. 실제 백엔드에 맞춰 필요시 GET+query로 교체
+    const { status } = await serverInstance.post(`/feed/text/${id}`, body, {
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(body),
-      cache: 'no-store',
     });
 
-    const raw = await res.text();
-    let parsed: unknown = {};
-    try {
-      parsed = raw ? JSON.parse(raw) : {};
-    } catch {
-      parsed = { message: raw };
+    return NextResponse.json({}, { status: status });
+  } catch (error) {
+    if(error instanceof AxiosError) {
+      console.log(error.response?.data)
     }
-    const obj = (parsed && typeof parsed === 'object' ? parsed : {}) as Record<
-      string,
-      unknown
-    >;
-    const payload = {
-      ...obj,
-      isSuccess: res.ok && obj['isSuccess'] !== false,
-      code: (obj['code'] as string | undefined) ?? `COMMON${res.status}`,
-      message:
-        (obj['message'] as string | undefined) ??
-        res.statusText ??
-        'Request failed',
-    };
 
-    return NextResponse.json(payload, { status: res.status });
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : 'Server error';
-    return NextResponse.json(
-      { isSuccess: false, code: 'COMMON500', message },
-      { status: 500 },
-    );
+    return NextResponse.json({}, { status: 500 });
   }
 }

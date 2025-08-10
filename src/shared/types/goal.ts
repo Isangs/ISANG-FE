@@ -1,6 +1,8 @@
 export type Goal = {
   id: number;
   title: string;
+  name: string;
+  colorCode: string;
   category: string;
   score: number;
 };
@@ -12,8 +14,6 @@ export type Task = {
 };
 
 export type CreateGoalDto = { name: string; colorCode: string };
-export type CreateTaskDto = { goalId: number; title: string };
-
 export type RecordSettingsDto = {
   goalId: number;
   recordEnabled: boolean;

@@ -1,22 +1,16 @@
 import { MapPin, Check } from 'lucide-react';
-
-type Goal = {
-  id: number;
-  category: string;
-  title: string;
-  score: number;
-};
+import { TaskProps } from '@/features/goal/ui/GoalSection';
 
 type GoalCardProps = {
-  goal: Goal;
+  task: TaskProps;
   isDeleteMode?: boolean;
   onDelete?: (id: number) => void;
-  onOpenModal?: (id: number) => void;
+  onOpenModal: (id: number) => void;
   isCompleted?: boolean;
 };
 
-export function GoalCard({
-  goal,
+export function TaskCard({
+  task,
   isDeleteMode = false,
   onDelete,
   onOpenModal,
@@ -27,7 +21,7 @@ export function GoalCard({
       {isDeleteMode && (
         <button
           className="text-ls absolute -top-2 -right-2 z-10 h-8 w-8 rounded-full bg-red-500 font-bold text-white shadow-md"
-          onClick={() => onDelete?.(goal.id)}
+          onClick={() => onDelete?.(task.taskId)}
         >
           ×
         </button>
@@ -43,7 +37,7 @@ export function GoalCard({
         <div className="flex items-center justify-between p-1">
           <div className="flex items-center gap-2 text-sm">
             <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-600">
-              {goal.category}
+              {task.goal.name}
             </span>
             <span className="h-2 w-2 rounded-full bg-red-500" />
             <span className="text-xs text-gray-500">높음</span>
@@ -52,14 +46,14 @@ export function GoalCard({
           {/* 완료 여부에 따라 체크 아이콘 표시 */}
           <button
             type="button"
-            className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60 text-gray-600"
-            onClick={() => onOpenModal?.(goal.id)}
+            className="group flex h-4 w-4 items-center justify-center rounded-full border-2 border-gray-400 bg-white/60 text-gray-600"
+            onClick={() => onOpenModal(task.taskId)}
           >
-            {isCompleted && <Check className="h-3 w-3" />}{' '}
+            <Check className="h-3 w-3 group-hover:block hidden" />
           </button>
         </div>
 
-        <h3 className="text-base font-semibold text-gray-900">{goal.title}</h3>
+        <h3 className="text-base font-semibold text-gray-900">{task.name}</h3>
 
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4" />
@@ -70,10 +64,10 @@ export function GoalCard({
           <div className="h-2 w-full rounded-full bg-gray-200">
             <div
               className="h-full rounded-full bg-gradient-to-r from-orange-400 to-red-500 shadow-sm"
-              style={{ width: `${goal.score}%` }}
+              style={{ width: `${task.percentageScore}%` }}
             />
           </div>
-          <span className="text-sm text-gray-700">{goal.score}%</span>
+          <span className="text-sm text-gray-700">{task.percentageScore}%</span>
         </div>
       </div>
     </div>

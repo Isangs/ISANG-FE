@@ -5,15 +5,15 @@ import { Switch } from '@/components/ui/switch';
 
 interface RecordSettingsModalProps {
   onClose: () => void;
-  onConfirm: (settings: { recordEnabled: boolean; isPrivate: boolean }) => void;
+  onConfirm: (settings: { isAddRecord: boolean; isPublic: boolean }) => void;
 }
 
 export function RecordSettingsModal({
   onClose,
   onConfirm,
 }: RecordSettingsModalProps) {
-  const [recordEnabled, setRecordEnabled] = useState(true);
-  const [isPrivate, setIsPrivate] = useState(true);
+  const [isAddRecord, setIsAddRecord] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
 
   const [visible, setVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -35,7 +35,7 @@ export function RecordSettingsModal({
   const handleConfirm = () => {
     setVisible(false);
     setTimeout(() => {
-      onConfirm({ recordEnabled, isPrivate }); // 설정 값 부모에게 전달
+      onConfirm({ isAddRecord, isPublic }); // 설정 값 부모에게 전달
       setIsMounted(false);
       onClose(); // 기존 닫기
     }, 300);
@@ -62,8 +62,8 @@ export function RecordSettingsModal({
             <p className="text-xs text-gray-500">완료 기록을 저장합니다</p>
           </div>
           <Switch
-            checked={recordEnabled}
-            onCheckedChange={setRecordEnabled}
+            checked={isAddRecord}
+            onCheckedChange={setIsAddRecord}
             className="bg-[#d1d5db] data-[state=checked]:bg-[#a855f7]"
           />
         </div>
@@ -73,12 +73,12 @@ export function RecordSettingsModal({
           <div>
             <p className="text-sm font-semibold text-gray-800">공개 범위</p>
             <p className="text-xs text-gray-500">
-              {isPrivate ? '나만 보기' : '모두 보기'}
+              { isPublic ? '모두 보기' : '나만 보기' }
             </p>
           </div>
           <Switch
-            checked={!isPrivate}
-            onCheckedChange={() => setIsPrivate((prev) => !prev)}
+            checked={isPublic}
+            onCheckedChange={() => setIsPublic((prev) => !prev)}
             className="bg-[#d1d5db] data-[state=checked]:bg-[#a855f7]"
           />
         </div>

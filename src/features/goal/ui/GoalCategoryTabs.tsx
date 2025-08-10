@@ -1,13 +1,15 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { GoalProps } from '@/features/goal/ui/GoalSection';
+import { Goal } from '@/shared/types/goal';
 
 type GoalCategoryTabsProps = {
-  categories: { name: string; color: string }[];
+  categories: GoalProps[];
   isDeleteMode?: boolean;
-  selected: string;
-  onSelect: (category: string) => void;
-  onDelete?: (category: string) => void;
+  selected: GoalProps | undefined;
+  onSelect: (category: GoalProps | undefined) => void;
+  onDelete: (category: GoalProps) => void;
 };
 
 export function GoalCategoryTabs({
@@ -17,28 +19,36 @@ export function GoalCategoryTabs({
   onDelete,
   categories = [],
 }: GoalCategoryTabsProps) {
+  const wrappedGoals: GoalProps[] = [
+    {
+      goalId: 0,
+      name: "전체",
+      colorCode: "bg-gray-200",
+    },
+    ...categories,
+  ]
+
   return (
     <div className="relative flex w-full gap-2 overflow-x-auto px-4 pt-2 pb-5">
-      {categories.map(({ name }) => (
-        <div key={name} className="relative">
+      {wrappedGoals.map((goal) => (
+        <div key={goal.goalId} className="relative">
           {isDeleteMode && (
             <button
               className="absolute -top-2 -right-2 z-10 h-6 w-6 rounded-full bg-red-500 text-xs font-bold text-white shadow-md"
-              onClick={() => onDelete?.(name)}
+              onClick={() => onDelete(goal)}
             >
               ×
             </button>
           )}
           <button
-            onClick={() => onSelect(name)}
+            onClick={() => onSelect(goal)}
             className={cn(
-              'h-9 rounded-full px-4 text-sm font-medium whitespace-nowrap',
-              selected === name
-                ? 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-md'
-                : 'bg-white/70 text-gray-700',
+              'h-9 rounded-full px-4 text-sm font-medium whitespace-nowrap bg-gradient-to-r text-white shadow-md',
+                goal.colorCode,
+                selected?.name === goal.name && 'ring-2 ring-black',
             )}
           >
-            {name}
+            {goal.name}
           </button>
         </div>
       ))}
